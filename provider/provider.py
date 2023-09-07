@@ -39,9 +39,10 @@ class ResolveResult(object):
 
 
 class ConfidenceOpenFeatureProvider(AbstractProvider):
-    def __init__(self, client_secret: str, region: Region = Region.EU):
+    def __init__(self, client_secret: str, region: Region = Region.EU, apply_on_resolve: bool = True):
         self._client_secret = client_secret
         self._api_endpoint = region.endpoint()
+        self._apply_on_resolve = apply_on_resolve
 
     #
     # --- Provider API ---
@@ -139,7 +140,7 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
         request_body = {
             "clientSecret": self._client_secret,
             "evaluationContext": context,
-            "apply": True,
+            "apply": self._apply_on_resolve,
             "flags": [flag_name.flag],
         }
 

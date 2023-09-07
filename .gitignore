@@ -1,2 +1,5 @@
 __pycache__
 .venv/
+confidence_openfeature_provider.egg-info/
+
+

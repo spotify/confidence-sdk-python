@@ -22,13 +22,14 @@ from .names import FlagName, VariantName
 EU_RESOLVE_API_ENDPOINT = "https://resolver.eu.confidence.dev/v1"
 US_RESOLVE_API_ENDPOINT = "https://resolver.us.confidence.dev/v1"
 
-class Region(Enum):
 
+class Region(Enum):
     def endpoint(self):
         return self.value
-    
+
     EU = EU_RESOLVE_API_ENDPOINT
     US = US_RESOLVE_API_ENDPOINT
+
 
 @dataclasses.dataclass
 class ResolveResult(object):
@@ -139,7 +140,7 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
             "clientSecret": self._client_secret,
             "evaluationContext": context,
             "apply": True,
-            "flags":[flag_name.flag]
+            "flags": [flag_name.flag],
         }
 
         resolve_url = f"{self._api_endpoint}/flags:resolve"
@@ -154,7 +155,7 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
 
         resolved_flags = response_body["resolvedFlags"]
         token = response_body["resolveToken"]
-        resolved_flag=resolved_flags[0]
+        resolved_flag = resolved_flags[0]
         return ResolveResult(resolved_flag["value"], resolved_flag["variant"], token)
 
     def _select(

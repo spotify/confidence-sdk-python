@@ -18,7 +18,6 @@ from open_feature.provider.provider import AbstractProvider
 
 from .names import FlagName, VariantName
 
-
 EU_RESOLVE_API_ENDPOINT = "https://resolver.eu.confidence.dev/v1"
 US_RESOLVE_API_ENDPOINT = "https://resolver.us.confidence.dev/v1"
 

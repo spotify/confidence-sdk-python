@@ -171,7 +171,7 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
         self,
         result: ResolveResult,
         value_path: str,
-        value_type: typing.Type[bool | int | str | dict],
+        value_type: typing.Union[bool, int, str, dict],
     ):
         value = result.value
 

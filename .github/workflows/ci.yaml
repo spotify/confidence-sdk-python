@@ -52,3 +52,6 @@ jobs:
 
       - name: Run flake8 formatter check
         run: flake8 provider
+
+      - name: Run tests with pytest
+        run: pytest

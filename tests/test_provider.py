@@ -1,10 +1,10 @@
 import requests_mock
 import unittest
+import json
 from provider.provider import ConfidenceOpenFeatureProvider
-from open_feature.evaluation_context.evaluation_context import EvaluationContext
+from provider.provider import EvaluationContext
 from provider.provider import Region
-from open_feature.open_feature_client import Reason
-import test_resources
+from provider.provider import Reason
 
 
 class TestMyProvider(unittest.TestCase):
@@ -19,7 +19,7 @@ class TestMyProvider(unittest.TestCase):
         with requests_mock.Mocker() as mock:
             mock.post(
                 "https://resolver.eu.confidence.dev/v1/flags:resolve",
-                json=test_resources.SUCCESSFUL_STRING_FLAG_RESOLVE,
+                json=SUCCESSFUL_STRING_FLAG_RESOLVE,
             )
             result = self.provider.resolve_string_details(
                 flag_key="test-flag.color",
@@ -37,7 +37,7 @@ class TestMyProvider(unittest.TestCase):
         with requests_mock.Mocker() as mock:
             mock.post(
                 "https://resolver.eu.confidence.dev/v1/flags:resolve",
-                json=test_resources.NO_MATCH_STRING_FLAG_RESOLVE,
+                json=NO_MATCH_STRING_FLAG_RESOLVE,
             )
             result = self.provider.resolve_string_details(
                 flag_key="some-flag-that-doesnt-exist",
@@ -58,7 +58,7 @@ class TestMyProvider(unittest.TestCase):
         with requests_mock.Mocker() as mock:
             mock.post(
                 "https://resolver.eu.confidence.dev/v1/flags:resolve",
-                json=test_resources.SUCCESSFUL_STRING_FLAG_RESOLVE,
+                json=SUCCESSFUL_STRING_FLAG_RESOLVE,
             )
             self.provider.resolve_string_details(
                 flag_key="test-flag.color",
@@ -73,7 +73,7 @@ class TestMyProvider(unittest.TestCase):
             )
             self.assertEqual(
                 last_request.json(),
-                test_resources.EXPECTED_REQUEST_PAYLOAD,
+                EXPECTED_REQUEST_PAYLOAD,
             )
 
     def test_apply_configurable(self):
@@ -87,7 +87,7 @@ class TestMyProvider(unittest.TestCase):
         with requests_mock.Mocker() as mock:
             mock.post(
                 "https://resolver.eu.confidence.dev/v1/flags:resolve",
-                json=test_resources.SUCCESSFUL_STRING_FLAG_RESOLVE,
+                json=SUCCESSFUL_STRING_FLAG_RESOLVE,
             )
 
             apply_false_provider.resolve_string_details(
@@ -110,3 +110,44 @@ class TestMyProvider(unittest.TestCase):
 
     if __name__ == "__main__":
         unittest.main()
+
+
+SUCCESSFUL_STRING_FLAG_RESOLVE = json.loads(
+    """{
+ "resolvedFlags": [
+  {
+   "flag": "flags/test-flag",
+   "variant": "flags/test-flag/variants/control",
+   "value": {
+    "color": "red"
+   },
+   "flagSchema": {
+    "schema": {
+     "color": {
+      "stringSchema": {}
+     }
+    }
+   },
+   "reason": "RESOLVE_REASON_MATCH"
+  }
+ ],
+ "resolveToken": ""
+}"""
+)
+
+NO_MATCH_STRING_FLAG_RESOLVE = json.loads(
+    """{"resolvedFlags": [], "resolveToken": ""}"""
+)
+
+EXPECTED_REQUEST_PAYLOAD = json.loads(
+    """{
+  "clientSecret": "test",
+  "evaluationContext": {
+    "targeting_key": "boop",
+    "user": { "country": "US" },
+    "connection": "wifi"
+  },
+  "apply": true,
+  "flags": ["test-flag"]
+}"""
+)

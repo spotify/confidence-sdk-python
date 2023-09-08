@@ -3,7 +3,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: PR
+name: Lint and Tests
 
 on:
   pull_request:
@@ -33,7 +33,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.venv
-          key: ${{ hashFiles('requirements.txt') }}
+          key: ${{ hashFiles('requirements.txt', 'requirements-dev.txt') }}
 
       - name: Upgrade pip
         run: pip install --upgrade pip
@@ -45,7 +45,9 @@ jobs:
           . .venv/bin/activate
 
       - name: Install dependencies
-        run: pip install -r requirements-dev.txt
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
 
       - name: Run black formatter check
         run: black --check provider

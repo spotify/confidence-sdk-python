@@ -38,7 +38,12 @@ class ResolveResult(object):
 
 
 class ConfidenceOpenFeatureProvider(AbstractProvider):
-    def __init__(self, client_secret: str, region: Region = Region.EU, apply_on_resolve: bool = True):
+    def __init__(
+        self,
+        client_secret: str,
+        region: Region = Region.EU,
+        apply_on_resolve: bool = True,
+    ):
         self._client_secret = client_secret
         self._api_endpoint = region.endpoint()
         self._apply_on_resolve = apply_on_resolve
@@ -48,7 +53,7 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
     #
 
     def get_metadata(self) -> Metadata:
-        return Metadata("confidence")
+        return Metadata("Confidence")
 
     def get_provider_hooks(self) -> typing.List[Hook]:
         return []
@@ -155,6 +160,10 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
 
         resolved_flags = response_body["resolvedFlags"]
         token = response_body["resolveToken"]
+
+        if len(resolved_flags) == 0:
+            return ResolveResult(None, None, token)
+
         resolved_flag = resolved_flags[0]
         return ResolveResult(resolved_flag["value"], resolved_flag["variant"], token)
 
@@ -162,7 +171,7 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
         self,
         result: ResolveResult,
         value_path: str,
-        value_type: typing.Type[bool | int | str | dict],
+        value_type: typing.Union[bool, int, str, dict],
     ):
         value = result.value
 

@@ -1,2 +1,5 @@
+pytest
+pytest-mock
 black
 flake8
+requests_mock

@@ -1,0 +1,76 @@
+name: Run Release Please
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: google-github-actions/release-please-action@v3
+        id: release
+        with:
+          command: manifest
+          release-type: go
+          token: ${{secrets.GITHUB_TOKEN}}
+          default-branch: main
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      release_tag_name: ${{ steps.release.outputs.tag_name }}
+
+  python-release:
+    needs: release-please
+    runs-on: ubuntu-latest
+    if: ${{ needs.release-please.outputs.release_created }}
+    container:
+      image: "python:3.11"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.release-please.outputs.release_tag_name }}
+
+      - name: Cache virtualenvironment
+        uses: actions/cache@v3
+        with:
+          path: ~/.venv
+          key: ${{ hashFiles('requirements.txt', 'requirements-dev.txt') }}
+
+      - name: Upgrade pip
+        run: pip install --upgrade pip
+
+      - name: Create and activate Virtualenv
+        run: |
+          pip install virtualenv
+          [ ! -d ".venv" ] && virtualenv .venv
+          . .venv/bin/activate
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Install pypa/build
+        run: >-
+          python -m
+          pip install
+          build
+          --user
+
+      - name: Build a binary wheel and a source tarball
+        run: >-
+          python -m
+          build
+          --sdist
+          --wheel
+          --outdir dist/
+          .
+
+      #- name: Publish a Python distribution to PyPI
+      #  uses: pypa/gh-action-pypi-publish@release/v1
+      #  with:
+      #    password: ${{ secrets.PYPI_API_TOKEN }}

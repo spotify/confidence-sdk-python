@@ -127,7 +127,7 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
         }
 
         result = self._resolve(FlagName(flag_id), context)
-        if result.variant is None or len(result.value) == 0:
+        if result.variant is None or len(str(result.value)) == 0:
             return FlagEvaluationDetails(flag_key, default_value, reason=Reason.DEFAULT)
 
         variant_name = VariantName.parse(result.variant)

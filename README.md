@@ -32,13 +32,13 @@ The flag's schema is validated against the requested data type, and if it doesn'
 
 from provider.provider import Region
 from provider.provider import ConfidenceOpenFeatureProvider
-from open_feature.evaluation_context.evaluation_context import EvaluationContext
-from open_feature import open_feature_api
+from open_feature.api import EvaluationContext
+from open_feature import api
 
 provider = ConfidenceOpenFeatureProvider("client_secret", Region.EU)
 
-open_feature_api.set_provider(provider)
-open_feature_client = open_feature_api.get_client()
+api.set_provider(provider)
+open_feature_client = api.get_client()
 
 ctx = EvaluationContext(targeting_key= "random", attributes= {
     "user": {

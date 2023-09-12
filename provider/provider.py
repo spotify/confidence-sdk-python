@@ -3,16 +3,16 @@ import typing
 from enum import Enum
 
 import requests
-from open_feature.evaluation_context.evaluation_context import EvaluationContext
-from open_feature.exception.exceptions import (
+from open_feature.api import EvaluationContext
+from open_feature.exception import (
     FlagNotFoundError,
     ParseError,
     TargetingKeyMissingError,
     TypeMismatchError,
 )
-from open_feature.flag_evaluation.flag_evaluation_details import FlagEvaluationDetails
-from open_feature.flag_evaluation.reason import Reason
-from open_feature.hooks.hook import Hook
+from open_feature.flag_evaluation import FlagEvaluationDetails
+from open_feature.flag_evaluation import Reason
+from open_feature.api import Hook
 from open_feature.provider.metadata import Metadata
 from open_feature.provider.provider import AbstractProvider
 

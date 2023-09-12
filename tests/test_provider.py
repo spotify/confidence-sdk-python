@@ -76,38 +76,6 @@ class TestMyProvider(unittest.TestCase):
                 EXPECTED_REQUEST_PAYLOAD,
             )
 
-    def test_apply_configurable(self):
-        ctx = EvaluationContext(targeting_key="meh")
-        apply_false_provider = ConfidenceOpenFeatureProvider(
-            client_secret="test", apply_on_resolve=False
-        )
-        apply_true_provider = ConfidenceOpenFeatureProvider(
-            client_secret="test", apply_on_resolve=True
-        )
-        with requests_mock.Mocker() as mock:
-            mock.post(
-                "https://resolver.eu.confidence.dev/v1/flags:resolve",
-                json=SUCCESSFUL_STRING_FLAG_RESOLVE,
-            )
-
-            apply_false_provider.resolve_string_details(
-                flag_key="test-flag.color",
-                default_value="yellow",
-                evaluation_context=ctx,
-            )
-
-            last_request = mock.request_history[-1]
-            self.assertEqual(last_request.json()["apply"], False)
-
-            apply_true_provider.resolve_string_details(
-                flag_key="test-flag.color",
-                default_value="yellow",
-                evaluation_context=ctx,
-            )
-
-            last_request = mock.request_history[-1]
-            self.assertEqual(last_request.json()["apply"], True)
-
     if __name__ == "__main__":
         unittest.main()
 

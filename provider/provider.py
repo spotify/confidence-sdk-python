@@ -39,10 +39,10 @@ class ResolveResult(object):
 
 class ConfidenceOpenFeatureProvider(AbstractProvider):
     def __init__(
-        self,
-        client_secret: str,
-        region: Region = Region.EU,
-        apply_on_resolve: bool = True,
+            self,
+            client_secret: str,
+            region: Region = Region.EU,
+            apply_on_resolve: bool = True,
     ):
         self._client_secret = client_secret
         self._api_endpoint = region.endpoint()
@@ -59,42 +59,42 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
         return []
 
     def resolve_boolean_details(
-        self,
-        flag_key: str,
-        default_value: bool,
-        evaluation_context: typing.Optional[EvaluationContext] = None,
+            self,
+            flag_key: str,
+            default_value: bool,
+            evaluation_context: typing.Optional[EvaluationContext] = None,
     ) -> FlagEvaluationDetails[bool]:
         return self._evaluate(flag_key, bool, default_value, evaluation_context)
 
     def resolve_float_details(
-        self,
-        flag_key: str,
-        default_value: float,
-        evaluation_context: typing.Optional[EvaluationContext] = None,
+            self,
+            flag_key: str,
+            default_value: float,
+            evaluation_context: typing.Optional[EvaluationContext] = None,
     ) -> FlagEvaluationDetails[float]:
         return self._evaluate(flag_key, float, default_value, evaluation_context)
 
     def resolve_integer_details(
-        self,
-        flag_key: str,
-        default_value: int,
-        evaluation_context: typing.Optional[EvaluationContext] = None,
+            self,
+            flag_key: str,
+            default_value: int,
+            evaluation_context: typing.Optional[EvaluationContext] = None,
     ) -> FlagEvaluationDetails[int]:
         return self._evaluate(flag_key, int, default_value, evaluation_context)
 
     def resolve_string_details(
-        self,
-        flag_key: str,
-        default_value: str,
-        evaluation_context: typing.Optional[EvaluationContext] = None,
+            self,
+            flag_key: str,
+            default_value: str,
+            evaluation_context: typing.Optional[EvaluationContext] = None,
     ) -> FlagEvaluationDetails[str]:
         return self._evaluate(flag_key, str, default_value, evaluation_context)
 
     def resolve_object_details(
-        self,
-        flag_key: str,
-        default_value: dict,
-        evaluation_context: typing.Optional[EvaluationContext] = None,
+            self,
+            flag_key: str,
+            default_value: dict,
+            evaluation_context: typing.Optional[EvaluationContext] = None,
     ) -> FlagEvaluationDetails[dict]:
         return self._evaluate(flag_key, dict, default_value, evaluation_context)
 
@@ -103,11 +103,11 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
     #
 
     def _evaluate(
-        self,
-        flag_key: str,
-        value_type: typing.Type,
-        default_value: typing.Any,
-        evaluation_context: typing.Optional[EvaluationContext] = None,
+            self,
+            flag_key: str,
+            value_type: typing.Type,
+            default_value: typing.Any,
+            evaluation_context: typing.Optional[EvaluationContext] = None,
     ) -> FlagEvaluationDetails[typing.Any]:
         if evaluation_context is None:
             evaluation_context = EvaluationContext()
@@ -127,7 +127,7 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
         }
 
         result = self._resolve(FlagName(flag_id), context)
-        if result.variant is None or len(result.value) == 0:
+        if result.variant is None or len(str(result.value)) == 0:
             return FlagEvaluationDetails(flag_key, default_value, reason=Reason.DEFAULT)
 
         variant_name = VariantName.parse(result.variant)
@@ -168,10 +168,10 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
         return ResolveResult(resolved_flag["value"], resolved_flag["variant"], token)
 
     def _select(
-        self,
-        result: ResolveResult,
-        value_path: str,
-        value_type: typing.Union[bool, int, str, dict],
+            self,
+            result: ResolveResult,
+            value_path: str,
+            value_type: typing.Union[bool, int, str, dict],
     ):
         value = result.value
 

@@ -19,17 +19,17 @@ class TestMyProvider(unittest.TestCase):
         with requests_mock.Mocker() as mock:
             mock.post(
                 "https://resolver.eu.confidence.dev/v1/flags:resolve",
-                json=SUCCESSFUL_STRING_FLAG_RESOLVE,
+                json=SUCCESSFUL_FLAG_RESOLVE,
             )
             result = self.provider.resolve_string_details(
-                flag_key="test-flag.color",
+                flag_key="flags/python-flag-1.string-key",
                 default_value="yellow",
                 evaluation_context=ctx,
             )
 
-            self.assertEqual(result.flag_key, "test-flag.color")
-            self.assertEqual(result.value, "red")
-            self.assertEqual(result.variant, "control")
+            self.assertEqual(result.flag_key, "flags/python-flag-1.string-key")
+            self.assertEqual(result.value, "outer-string")
+            self.assertEqual(result.variant, "enabled")
             self.assertEqual(result.reason, Reason.TARGETING_MATCH)
 
     def test_resolve_failed(self):
@@ -58,10 +58,10 @@ class TestMyProvider(unittest.TestCase):
         with requests_mock.Mocker() as mock:
             mock.post(
                 "https://resolver.eu.confidence.dev/v1/flags:resolve",
-                json=SUCCESSFUL_STRING_FLAG_RESOLVE,
+                json=SUCCESSFUL_FLAG_RESOLVE,
             )
             self.provider.resolve_string_details(
-                flag_key="test-flag.color",
+                flag_key="flags/python-flag-1.string-key",
                 default_value="yellow",
                 evaluation_context=ctx,
             )
@@ -76,64 +76,90 @@ class TestMyProvider(unittest.TestCase):
                 EXPECTED_REQUEST_PAYLOAD,
             )
 
-    def test_apply_configurable(self):
-        ctx = EvaluationContext(targeting_key="meh")
-        apply_false_provider = ConfidenceOpenFeatureProvider(
-            client_secret="test", apply_on_resolve=False
-        )
-        apply_true_provider = ConfidenceOpenFeatureProvider(
-            client_secret="test", apply_on_resolve=True
+    def test_resolve_response_object_details(self):
+        ctx = EvaluationContext(
+            targeting_key="boop",
         )
         with requests_mock.Mocker() as mock:
             mock.post(
                 "https://resolver.eu.confidence.dev/v1/flags:resolve",
-                json=SUCCESSFUL_STRING_FLAG_RESOLVE,
+                json=SUCCESSFUL_FLAG_RESOLVE,
             )
-
-            apply_false_provider.resolve_string_details(
-                flag_key="test-flag.color",
-                default_value="yellow",
+            result = self.provider.resolve_object_details(
+                flag_key="flags/python-flag-1",
+                default_value={'key': 'value'},
                 evaluation_context=ctx,
             )
 
-            last_request = mock.request_history[-1]
-            self.assertEqual(last_request.json()["apply"], False)
+            self.assertEqual(result.reason, Reason.TARGETING_MATCH)
+            self.assertEqual(result.flag_key, "flags/python-flag-1")
+            self.assertEqual(result.value, {'double-key': 42.42,
+                                            'enabled': True,
+                                            'int-key': 42,
+                                            'string-key': 'outer-string',
+                                            'struct-key': {'string-key': 'inner-string'}}
+                             )
 
-            apply_true_provider.resolve_string_details(
-                flag_key="test-flag.color",
-                default_value="yellow",
+    def test_resolve_struct_details(self):
+        ctx = EvaluationContext(
+            targeting_key="boop",
+        )
+        with requests_mock.Mocker() as mock:
+            mock.post(
+                "https://resolver.eu.confidence.dev/v1/flags:resolve",
+                json=SUCCESSFUL_FLAG_RESOLVE,
+            )
+            result = self.provider.resolve_object_details(
+                flag_key="flags/python-flag-1.struct-key",
+                default_value={'key': 'value'},
                 evaluation_context=ctx,
             )
 
-            last_request = mock.request_history[-1]
-            self.assertEqual(last_request.json()["apply"], True)
+            self.assertEqual(result.reason, Reason.TARGETING_MATCH)
+            self.assertEqual(result.flag_key, "flags/python-flag-1.struct-key")
+            self.assertEqual(result.value, {'string-key': 'inner-string'})
+
+    def test_resolve_integer_details(self):
+        ctx = EvaluationContext(
+            targeting_key="boop",
+        )
+        with requests_mock.Mocker() as mock:
+            mock.post(
+                "https://resolver.eu.confidence.dev/v1/flags:resolve",
+                json=SUCCESSFUL_FLAG_RESOLVE,
+            )
+            result = self.provider.resolve_integer_details(
+                flag_key="flags/python-flag-1.int-key",
+                default_value=-1,
+                evaluation_context=ctx,
+            )
+
+            self.assertEqual(result.reason, Reason.TARGETING_MATCH)
+            self.assertEqual(result.flag_key, "flags/python-flag-1.int-key")
+            self.assertEqual(result.value, 42)
+
+    def test_resolve_boolean_details(self):
+        ctx = EvaluationContext(
+            targeting_key="boop",
+        )
+        with requests_mock.Mocker() as mock:
+            mock.post(
+                "https://resolver.eu.confidence.dev/v1/flags:resolve",
+                json=SUCCESSFUL_FLAG_RESOLVE,
+            )
+            result = self.provider.resolve_boolean_details(
+                flag_key="flags/python-flag-1.enabled",
+                default_value=False,
+                evaluation_context=ctx,
+            )
+
+            self.assertEqual(result.reason, Reason.TARGETING_MATCH)
+            self.assertEqual(result.flag_key, "flags/python-flag-1.enabled")
+            self.assertEqual(result.value, True)
 
     if __name__ == "__main__":
         unittest.main()
 
-
-SUCCESSFUL_STRING_FLAG_RESOLVE = json.loads(
-    """{
- "resolvedFlags": [
-  {
-   "flag": "flags/test-flag",
-   "variant": "flags/test-flag/variants/control",
-   "value": {
-    "color": "red"
-   },
-   "flagSchema": {
-    "schema": {
-     "color": {
-      "stringSchema": {}
-     }
-    }
-   },
-   "reason": "RESOLVE_REASON_MATCH"
-  }
- ],
- "resolveToken": ""
-}"""
-)
 
 NO_MATCH_STRING_FLAG_RESOLVE = json.loads(
     """{"resolvedFlags": [], "resolveToken": ""}"""
@@ -148,6 +174,53 @@ EXPECTED_REQUEST_PAYLOAD = json.loads(
     "connection": "wifi"
   },
   "apply": true,
-  "flags": ["test-flag"]
+  "flags": ["flags/python-flag-1"]
 }"""
+)
+
+SUCCESSFUL_FLAG_RESOLVE = json.loads(
+    """{
+     "resolvedFlags": [
+    {
+      "flag": "flags/python-flag-1",
+      "variant": "flags/python-flag-1/variants/enabled",
+      "value": {
+        "struct-key": {
+          "string-key": "inner-string"
+        },
+        "string-key": "outer-string",
+        "double-key": 42.42,
+        "int-key": 42,
+        "enabled": true
+      },
+      "flagSchema": {
+        "schema": {
+          "struct-key": {
+            "structSchema": {
+              "schema": {
+                "string-key": {
+                  "stringSchema": {}
+                }
+              }
+            }
+          },
+          "string-key": {
+            "stringSchema": {}
+          },
+          "double-key": {
+            "doubleSchema": {}
+          },
+          "int-key": {
+            "intSchema": {}
+          },
+          "enabled": {
+            "boolSchema": {}
+          }
+        }
+      },
+      "reason": "RESOLVE_REASON_MATCH"
+    }
+  ],
+  "resolveToken": ""
+    }"""
 )

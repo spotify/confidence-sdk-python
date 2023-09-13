@@ -7,7 +7,6 @@ from open_feature.api import EvaluationContext
 from open_feature.exception import (
     FlagNotFoundError,
     ParseError,
-    TargetingKeyMissingError,
     TypeMismatchError,
 )
 from open_feature.flag_evaluation import FlagEvaluationDetails
@@ -118,13 +117,11 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
             flag_id = flag_key
             value_path = None
 
-        if evaluation_context.targeting_key is None:
-            raise TargetingKeyMissingError("context is missing targeting key")
-
         context = {
-            "targeting_key": evaluation_context.targeting_key,
             **(evaluation_context.attributes or {}),
         }
+        if evaluation_context.targeting_key:
+            context["targeting_key"] = evaluation_context.targeting_key
 
         result = self._resolve(FlagName(flag_id), context)
         if result.variant is None or len(str(result.value)) == 0:
@@ -165,7 +162,10 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
             return ResolveResult(None, None, token)
 
         resolved_flag = resolved_flags[0]
-        return ResolveResult(resolved_flag["value"], resolved_flag["variant"], token)
+        variant = resolved_flag.get("variant")
+        return ResolveResult(
+            resolved_flag.get("value"), None if variant == "" else variant, token
+        )
 
     def _select(
         self,

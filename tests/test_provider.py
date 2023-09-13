@@ -157,12 +157,67 @@ class TestMyProvider(unittest.TestCase):
             self.assertEqual(result.flag_key, "flags/python-flag-1.enabled")
             self.assertEqual(result.value, True)
 
+    def test_resolve_without_targeting_key(self):
+        ctx = EvaluationContext(
+            attributes={"user": {"country": "US"}, "connection": "wifi"}
+        )
+        with requests_mock.Mocker() as mock:
+            mock.post(
+                "https://resolver.eu.confidence.dev/v1/flags:resolve",
+                json=SUCCESSFUL_FLAG_RESOLVE,
+            )
+            result = self.provider.resolve_string_details(
+                flag_key="flags/python-flag-1.string-key",
+                default_value="brown",
+                evaluation_context=ctx,
+            )
+            self.assertIsNotNone(result.value)
+
+            last_request = mock.request_history[-1]
+            self.assertIsNone(
+                last_request.json()["evaluationContext"].get("targeting_key"),
+            )
+            self.assertEqual(
+                last_request.json()["evaluationContext"].get("connection"), "wifi"
+            )
+
+
+    def test_no_segment_match(self):
+        ctx = EvaluationContext(
+            attributes={"connection": "wifi"}
+        )
+        with requests_mock.Mocker() as mock:
+            mock.post(
+                "https://resolver.eu.confidence.dev/v1/flags:resolve",
+                json=NO_SEGMENT_MATCH_STRING_FLAG_RESOLVE,
+            )
+            result = self.provider.resolve_string_details(
+                flag_key="test-flag.color",
+                default_value="brown",
+                evaluation_context=ctx,
+            )
+            self.assertEqual(result.value, "brown")
+            self.assertEqual(result.reason, Reason.DEFAULT)
+
     if __name__ == "__main__":
         unittest.main()
 
 
 NO_MATCH_STRING_FLAG_RESOLVE = json.loads(
     """{"resolvedFlags": [], "resolveToken": ""}"""
+)
+
+NO_SEGMENT_MATCH_STRING_FLAG_RESOLVE = json.loads(
+    """{
+  "resolveToken": "",
+  "resolvedFlags": [
+    {
+      "flag": "flags/test-flag-2",
+      "reason": "RESOLVE_REASON_NO_SEGMENT_MATCH",
+      "variant": ""
+    }
+  ]
+}"""
 )
 
 EXPECTED_REQUEST_PAYLOAD = json.loads(

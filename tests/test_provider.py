@@ -22,12 +22,12 @@ class TestMyProvider(unittest.TestCase):
                 json=SUCCESSFUL_FLAG_RESOLVE,
             )
             result = self.provider.resolve_string_details(
-                flag_key="flags/python-flag-1.string-key",
+                flag_key="python-flag-1.string-key",
                 default_value="yellow",
                 evaluation_context=ctx,
             )
 
-            self.assertEqual(result.flag_key, "flags/python-flag-1.string-key")
+            self.assertEqual(result.flag_key, "python-flag-1.string-key")
             self.assertEqual(result.value, "outer-string")
             self.assertEqual(result.variant, "enabled")
             self.assertEqual(result.reason, Reason.TARGETING_MATCH)
@@ -61,7 +61,7 @@ class TestMyProvider(unittest.TestCase):
                 json=SUCCESSFUL_FLAG_RESOLVE,
             )
             self.provider.resolve_string_details(
-                flag_key="flags/python-flag-1.string-key",
+                flag_key="python-flag-1.string-key",
                 default_value="yellow",
                 evaluation_context=ctx,
             )
@@ -86,13 +86,13 @@ class TestMyProvider(unittest.TestCase):
                 json=SUCCESSFUL_FLAG_RESOLVE,
             )
             result = self.provider.resolve_object_details(
-                flag_key="flags/python-flag-1",
+                flag_key="python-flag-1",
                 default_value={'key': 'value'},
                 evaluation_context=ctx,
             )
 
             self.assertEqual(result.reason, Reason.TARGETING_MATCH)
-            self.assertEqual(result.flag_key, "flags/python-flag-1")
+            self.assertEqual(result.flag_key, "python-flag-1")
             self.assertEqual(result.value, {'double-key': 42.42,
                                             'enabled': True,
                                             'int-key': 42,
@@ -110,13 +110,13 @@ class TestMyProvider(unittest.TestCase):
                 json=SUCCESSFUL_FLAG_RESOLVE,
             )
             result = self.provider.resolve_object_details(
-                flag_key="flags/python-flag-1.struct-key",
+                flag_key="python-flag-1.struct-key",
                 default_value={'key': 'value'},
                 evaluation_context=ctx,
             )
 
             self.assertEqual(result.reason, Reason.TARGETING_MATCH)
-            self.assertEqual(result.flag_key, "flags/python-flag-1.struct-key")
+            self.assertEqual(result.flag_key, "python-flag-1.struct-key")
             self.assertEqual(result.value, {'string-key': 'inner-string'})
 
     def test_resolve_integer_details(self):
@@ -129,13 +129,13 @@ class TestMyProvider(unittest.TestCase):
                 json=SUCCESSFUL_FLAG_RESOLVE,
             )
             result = self.provider.resolve_integer_details(
-                flag_key="flags/python-flag-1.int-key",
+                flag_key="python-flag-1.int-key",
                 default_value=-1,
                 evaluation_context=ctx,
             )
 
             self.assertEqual(result.reason, Reason.TARGETING_MATCH)
-            self.assertEqual(result.flag_key, "flags/python-flag-1.int-key")
+            self.assertEqual(result.flag_key, "python-flag-1.int-key")
             self.assertEqual(result.value, 42)
 
     def test_resolve_boolean_details(self):
@@ -148,13 +148,13 @@ class TestMyProvider(unittest.TestCase):
                 json=SUCCESSFUL_FLAG_RESOLVE,
             )
             result = self.provider.resolve_boolean_details(
-                flag_key="flags/python-flag-1.enabled",
+                flag_key="python-flag-1.enabled",
                 default_value=False,
                 evaluation_context=ctx,
             )
 
             self.assertEqual(result.reason, Reason.TARGETING_MATCH)
-            self.assertEqual(result.flag_key, "flags/python-flag-1.enabled")
+            self.assertEqual(result.flag_key, "python-flag-1.enabled")
             self.assertEqual(result.value, True)
 
     def test_resolve_without_targeting_key(self):
@@ -167,7 +167,7 @@ class TestMyProvider(unittest.TestCase):
                 json=SUCCESSFUL_FLAG_RESOLVE,
             )
             result = self.provider.resolve_string_details(
-                flag_key="flags/python-flag-1.string-key",
+                flag_key="python-flag-1.string-key",
                 default_value="brown",
                 evaluation_context=ctx,
             )

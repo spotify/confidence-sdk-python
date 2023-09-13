@@ -142,7 +142,7 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
             "clientSecret": self._client_secret,
             "evaluationContext": context,
             "apply": self._apply_on_resolve,
-            "flags": [flag_name.flag],
+            "flags": [str(flag_name)],
         }
 
         resolve_url = f"{self._api_endpoint}/flags:resolve"

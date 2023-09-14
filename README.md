@@ -26,12 +26,12 @@ the attribute `boolean-key` on the flag `test-flag`.
 
 You can also use only the flag name `test-flag` and retrieve all values as a map with `resolve_object_details()`. 
 
-The flag's schema is validated against the requested data type, and if it doesn't match it will fall back to the default value. 
+The flag's schema is validated against the requested data type, and if it doesn't match it will fall back to the default value.
 
 ```python
 
-from provider.provider import Region
-from provider.provider import ConfidenceOpenFeatureProvider
+from confidence.provider import Region
+from confidence.provider import ConfidenceOpenFeatureProvider
 from open_feature.api import EvaluationContext
 from open_feature import api
 
@@ -40,13 +40,14 @@ provider = ConfidenceOpenFeatureProvider("client_secret", Region.EU)
 api.set_provider(provider)
 open_feature_client = api.get_client()
 
-ctx = EvaluationContext(targeting_key= "random", attributes= {
+ctx = EvaluationContext(targeting_key="random", attributes={
     "user": {
         "country": "SE"
     }
 })
 
-flag_value = open_feature_client.get_boolean_value(flag_key="test-flag.boolean-key", default_value=False, evaluation_context=ctx)
+flag_value = open_feature_client.get_boolean_value(flag_key="test-flag.boolean-key", default_value=False,
+                                                   evaluation_context=ctx)
 
 print(flag_value)
 

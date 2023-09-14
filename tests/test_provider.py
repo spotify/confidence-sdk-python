@@ -1,10 +1,10 @@
 import requests_mock
 import unittest
 import json
-from provider.provider import ConfidenceOpenFeatureProvider
-from provider.provider import EvaluationContext
-from provider.provider import Region
-from provider.provider import Reason
+from confidence.provider import ConfidenceOpenFeatureProvider
+from confidence.provider import EvaluationContext
+from confidence.provider import Region
+from confidence.provider import Reason
 
 
 class TestMyProvider(unittest.TestCase):

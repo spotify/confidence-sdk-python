@@ -1,6 +1,6 @@
 import unittest
 
-from provider.names import FlagName, VariantName
+from confidence.names import FlagName, VariantName
 
 
 class NamesTest(unittest.TestCase):

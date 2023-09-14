@@ -2,7 +2,7 @@ import pytest
 import requests_mock
 from open_feature.evaluation_context import EvaluationContext
 
-from provider.provider import ConfidenceOpenFeatureProvider
+from confidence.provider import ConfidenceOpenFeatureProvider
 from tests.test_provider import SUCCESSFUL_FLAG_RESOLVE
 
 

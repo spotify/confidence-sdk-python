@@ -9,9 +9,19 @@ and get familiar with the concepts.
 
 ## Adding the dependency
 
+#### pip install
+<!---x-release-please-start-version-->
 ```python
-TBD
+pip install confidence-openfeature-provider==0.1.0
 ```
+
+#### requirements.txt
+```python
+confidence-openfeature-provider==0.1.0
+
+pip install requirements.txt
+```
+<!---x-release-please-end-->
 
 ### Creating and using the flag provider
 

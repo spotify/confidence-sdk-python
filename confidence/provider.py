@@ -167,8 +167,8 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
             resolved_flag.get("value"), None if variant == "" else variant, token
         )
 
+    @staticmethod
     def _select(
-        self,
         result: ResolveResult,
         value_path: str,
         value_type: typing.Union[bool, int, str, dict],

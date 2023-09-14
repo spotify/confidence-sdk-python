@@ -3,13 +3,10 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Lint and Tests
+name: Lint and Tests PRs
 
 on:
   pull_request:
-    branches:
-      - 'main'
-  push:
     branches:
       - 'main'
 

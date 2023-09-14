@@ -1,5 +1,8 @@
 __pycache__
 .venv/
 confidence_openfeature_provider.egg-info/
-
+.idea/
+dist/
+build/
+confidence/_version.py
 

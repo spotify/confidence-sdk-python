@@ -47,10 +47,10 @@ jobs:
           pip install -r requirements-dev.txt
 
       - name: Run black formatter check
-        run: black --check provider
+        run: black --check confidence
 
       - name: Run flake8 formatter check
-        run: flake8 provider
+        run: flake8 confidence
 
       - name: Run tests with pytest
         run: pytest

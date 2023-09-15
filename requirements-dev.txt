@@ -3,3 +3,4 @@ pytest-mock
 black
 flake8
 requests_mock
+setuptools_scm

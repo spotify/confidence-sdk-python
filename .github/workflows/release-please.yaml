@@ -30,10 +30,12 @@ jobs:
     container:
       image: "python:3.11"
     steps:
-      - name: Checkout
+      - name: Check out src from Git
         uses: actions/checkout@v4
         with:
           ref: ${{ needs.release-please.outputs.release_tag_name }}
+          fetch-depth: 0 # this (and below) is needed to have setuptools_scm report the correct version
+          fetch-tags: true
 
       - name: Cache virtualenvironment
         uses: actions/cache@v3

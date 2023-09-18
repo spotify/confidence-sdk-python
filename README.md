@@ -12,12 +12,12 @@ and get familiar with the concepts.
 #### pip install
 <!---x-release-please-start-version-->
 ```python
-pip install confidence-openfeature-provider==0.1.0
+pip install confidence-openfeature-provider==0.1.1
 ```
 
 #### requirements.txt
 ```python
-confidence-openfeature-provider==0.1.0
+confidence-openfeature-provider==0.1.1
 
 pip install requirements.txt
 ```

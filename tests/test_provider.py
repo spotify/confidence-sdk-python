@@ -157,6 +157,25 @@ class TestMyProvider(unittest.TestCase):
             self.assertEqual(result.flag_key, "python-flag-1.enabled")
             self.assertEqual(result.value, True)
 
+    def test_resolve_float_details(self):
+        ctx = EvaluationContext(
+            targeting_key="boop",
+        )
+        with requests_mock.Mocker() as mock:
+            mock.post(
+                "https://resolver.eu.confidence.dev/v1/flags:resolve",
+                json=SUCCESSFUL_FLAG_RESOLVE,
+            )
+            result = self.provider.resolve_float_details(
+                flag_key="python-flag-1.double-key",
+                default_value=0.01,
+                evaluation_context=ctx,
+            )
+
+            self.assertEqual(result.reason, Reason.TARGETING_MATCH)
+            self.assertEqual(result.flag_key, "python-flag-1.double-key")
+            self.assertEqual(result.value, 42.42)
+
     def test_resolve_without_targeting_key(self):
         ctx = EvaluationContext(
             attributes={"user": {"country": "US"}, "connection": "wifi"}
@@ -180,7 +199,6 @@ class TestMyProvider(unittest.TestCase):
             self.assertEqual(
                 last_request.json()["evaluationContext"].get("connection"), "wifi"
             )
-
 
     def test_no_segment_match(self):
         ctx = EvaluationContext(

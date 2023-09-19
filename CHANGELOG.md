@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.1](https://github.com/spotify/confidence-openfeature-provider-python/compare/v0.1.0...v0.1.1) (2023-09-18)
+
+
+### 🐛 Bug Fixes
+
+* make _select a static method ([#22](https://github.com/spotify/confidence-openfeature-provider-python/issues/22)) ([0ad2b88](https://github.com/spotify/confidence-openfeature-provider-python/commit/0ad2b8863adaf9b8ade87d7504d461737763693f))
+
+
+### 📚 Documentation
+
+* update CONTRIBUTING.md ([#26](https://github.com/spotify/confidence-openfeature-provider-python/issues/26)) ([b574341](https://github.com/spotify/confidence-openfeature-provider-python/commit/b57434152e914768e16191195f36f059fb3a929a))
+
 ## 0.1.0 (2023-09-14)
 
 

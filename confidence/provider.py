@@ -3,17 +3,17 @@ import typing
 from enum import Enum
 
 import requests
-from open_feature.api import EvaluationContext
-from open_feature.exception import (
+from openfeature.api import EvaluationContext
+from openfeature.exception import (
     FlagNotFoundError,
     ParseError,
     TypeMismatchError,
 )
-from open_feature.flag_evaluation import FlagEvaluationDetails
-from open_feature.flag_evaluation import Reason
-from open_feature.api import Hook
-from open_feature.provider.metadata import Metadata
-from open_feature.provider.provider import AbstractProvider
+from openfeature.flag_evaluation import FlagEvaluationDetails
+from openfeature.flag_evaluation import Reason
+from openfeature.api import Hook
+from openfeature.provider.metadata import Metadata
+from openfeature.provider.provider import AbstractProvider
 
 from .names import FlagName, VariantName
 
@@ -31,8 +31,8 @@ class Region(Enum):
 
 @dataclasses.dataclass
 class ResolveResult(object):
-    value: dict
-    variant: str
+    value: typing.Optional[dict]
+    variant: typing.Optional[str]
     token: str
 
 
@@ -105,7 +105,7 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
         self,
         flag_key: str,
         value_type: typing.Type,
-        default_value: typing.Any,
+        default_value: typing.Union[bool, int, float, str, dict],
         evaluation_context: typing.Optional[EvaluationContext] = None,
     ) -> FlagEvaluationDetails[typing.Any]:
         if evaluation_context is None:
@@ -171,7 +171,7 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
     def _select(
         result: ResolveResult,
         value_path: str,
-        value_type: typing.Union[bool, int, str, dict],
+        value_type: typing.Type,
     ):
         value = result.value
 

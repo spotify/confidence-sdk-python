@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/spotify/confidence-openfeature-provider-python/compare/v0.1.1...v0.1.2) (2023-10-09)
+
+
+### 🐛 Bug Fixes
+
+* update to openfeature 0.3.1 and fix some type issues ([#29](https://github.com/spotify/confidence-openfeature-provider-python/issues/29)) ([6c0c5b1](https://github.com/spotify/confidence-openfeature-provider-python/commit/6c0c5b11194d614aea93e661ad28c11c2b54b627))
+
 ## [0.1.1](https://github.com/spotify/confidence-openfeature-provider-python/compare/v0.1.0...v0.1.1) (2023-09-18)
 
 

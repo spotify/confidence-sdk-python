@@ -12,7 +12,7 @@ class FlagName(object):
             raise ValueError("name error")
         return cls(components[1])
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"flags/{self.flag}"
 
 

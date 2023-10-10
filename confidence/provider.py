@@ -1,5 +1,6 @@
 import dataclasses
-import typing
+from typing import Any, Dict, List, Optional, Type, Union, get_args, get_origin
+from typing_extensions import TypeGuard
 from enum import Enum
 
 import requests
@@ -21,8 +22,27 @@ EU_RESOLVE_API_ENDPOINT = "https://resolver.eu.confidence.dev/v1"
 US_RESOLVE_API_ENDPOINT = "https://resolver.us.confidence.dev/v1"
 
 
+Primitive = Union[str, int, float, bool, None]
+FieldType = Union[Primitive, List[Primitive], List["Object"], "Object"]
+Object = Dict[str, FieldType]
+
+
+def is_primitive(field_type: Type[Any]) -> TypeGuard[Type[Primitive]]:
+    return field_type in get_args(Primitive)
+
+
+def primitive_matches(value: FieldType, value_type: Type[Primitive]) -> bool:
+    return (
+        value_type is None
+        or (value_type is int and isinstance(value, int))
+        or (value_type is float and isinstance(value, float))
+        or (value_type is str and isinstance(value, str))
+        or (value_type is bool and isinstance(value, bool))
+    )
+
+
 class Region(Enum):
-    def endpoint(self):
+    def endpoint(self) -> str:
         return self.value
 
     EU = EU_RESOLVE_API_ENDPOINT
@@ -31,12 +51,12 @@ class Region(Enum):
 
 @dataclasses.dataclass
 class ResolveResult(object):
-    value: typing.Optional[dict]
-    variant: typing.Optional[str]
+    value: Optional[Object]
+    variant: Optional[str]
     token: str
 
 
-class ConfidenceOpenFeatureProvider(AbstractProvider):
+class ConfidenceOpenFeatureProvider(AbstractProvider):  # type: ignore
     def __init__(
         self,
         client_secret: str,
@@ -54,14 +74,14 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
     def get_metadata(self) -> Metadata:
         return Metadata("Confidence")
 
-    def get_provider_hooks(self) -> typing.List[Hook]:
+    def get_provider_hooks(self) -> List[Hook]:
         return []
 
     def resolve_boolean_details(
         self,
         flag_key: str,
         default_value: bool,
-        evaluation_context: typing.Optional[EvaluationContext] = None,
+        evaluation_context: Optional[EvaluationContext] = None,
     ) -> FlagEvaluationDetails[bool]:
         return self._evaluate(flag_key, bool, default_value, evaluation_context)
 
@@ -69,7 +89,7 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
         self,
         flag_key: str,
         default_value: float,
-        evaluation_context: typing.Optional[EvaluationContext] = None,
+        evaluation_context: Optional[EvaluationContext] = None,
     ) -> FlagEvaluationDetails[float]:
         return self._evaluate(flag_key, float, default_value, evaluation_context)
 
@@ -77,7 +97,7 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
         self,
         flag_key: str,
         default_value: int,
-        evaluation_context: typing.Optional[EvaluationContext] = None,
+        evaluation_context: Optional[EvaluationContext] = None,
     ) -> FlagEvaluationDetails[int]:
         return self._evaluate(flag_key, int, default_value, evaluation_context)
 
@@ -85,17 +105,17 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
         self,
         flag_key: str,
         default_value: str,
-        evaluation_context: typing.Optional[EvaluationContext] = None,
+        evaluation_context: Optional[EvaluationContext] = None,
     ) -> FlagEvaluationDetails[str]:
         return self._evaluate(flag_key, str, default_value, evaluation_context)
 
     def resolve_object_details(
         self,
         flag_key: str,
-        default_value: dict,
-        evaluation_context: typing.Optional[EvaluationContext] = None,
+        default_value: Object,
+        evaluation_context: Optional[EvaluationContext] = None,
     ) -> FlagEvaluationDetails[dict]:
-        return self._evaluate(flag_key, dict, default_value, evaluation_context)
+        return self._evaluate(flag_key, Object, default_value, evaluation_context)
 
     #
     # --- internals
@@ -104,10 +124,10 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
     def _evaluate(
         self,
         flag_key: str,
-        value_type: typing.Type,
-        default_value: typing.Union[bool, int, float, str, dict],
-        evaluation_context: typing.Optional[EvaluationContext] = None,
-    ) -> FlagEvaluationDetails[typing.Any]:
+        value_type: Type[FieldType],
+        default_value: FieldType,
+        evaluation_context: Optional[EvaluationContext] = None,
+    ) -> FlagEvaluationDetails[Any]:
         if evaluation_context is None:
             evaluation_context = EvaluationContext()
 
@@ -137,7 +157,7 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
             flag_key, value, variant_name.variant, reason=Reason.TARGETING_MATCH
         )
 
-    def _resolve(self, flag_name: FlagName, context: dict) -> ResolveResult:
+    def _resolve(self, flag_name: FlagName, context: Dict[str, str]) -> ResolveResult:
         request_body = {
             "clientSecret": self._client_secret,
             "evaluationContext": context,
@@ -170,25 +190,40 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
     @staticmethod
     def _select(
         result: ResolveResult,
-        value_path: str,
-        value_type: typing.Type,
-    ):
-        value = result.value
+        value_path: Optional[str],
+        value_type: Type[FieldType],
+    ) -> FieldType:
+        value: FieldType = result.value
 
-        if value_path:
+        if value_path is not None:
             keys = value_path.split(".")
             for key in keys:
                 if not isinstance(value, dict):
                     raise ParseError()
+
                 if key not in value:
                     raise ParseError()
+
                 value = value.get(key)
 
         # skip type checking if the value was not specified
         if value is None:
             return None
 
-        if not isinstance(value, value_type):
+        if not ConfidenceOpenFeatureProvider.type_matches(value, value_type):
             raise TypeMismatchError("type of value did not match excepted type")
 
         return value
+
+    @staticmethod
+    def type_matches(value: FieldType, value_type: Type[FieldType]) -> bool:
+        origin = get_origin(value_type)
+
+        if is_primitive(value_type):
+            return primitive_matches(value, value_type)
+        elif origin is list:
+            return isinstance(value, list)
+        elif origin is dict:
+            return isinstance(value, dict)
+
+        return False

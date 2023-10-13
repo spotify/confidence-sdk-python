@@ -42,8 +42,8 @@ The flag's schema is validated against the requested data type, and if it doesn'
 
 from confidence.provider import Region
 from confidence.provider import ConfidenceOpenFeatureProvider
-from open_feature.api import EvaluationContext
-from open_feature import api
+from openfeature.api import EvaluationContext
+from openfeature import api
 
 provider = ConfidenceOpenFeatureProvider("client_secret", Region.EU)
 

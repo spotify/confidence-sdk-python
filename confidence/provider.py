@@ -2,6 +2,7 @@ import dataclasses
 from typing import Any, Dict, List, Optional, Type, Union, get_args, get_origin
 from typing_extensions import TypeGuard
 from enum import Enum
+from confidence import __version__
 
 import requests
 from openfeature.api import EvaluationContext
@@ -163,6 +164,7 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):  # type: ignore
             "evaluationContext": context,
             "apply": self._apply_on_resolve,
             "flags": [str(flag_name)],
+            "sdk": {"id": "SDK_ID_PYTHON_PROVIDER", "version": __version__},
         }
 
         resolve_url = f"{self._api_endpoint}/flags:resolve"

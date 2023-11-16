@@ -5,7 +5,7 @@ from confidence.provider import ConfidenceOpenFeatureProvider
 from confidence.provider import EvaluationContext
 from confidence.provider import Region
 from confidence.provider import Reason
-
+from confidence import provider
 
 class TestMyProvider(unittest.TestCase):
     def setUp(self):
@@ -56,6 +56,7 @@ class TestMyProvider(unittest.TestCase):
             attributes={"user": {"country": "US"}, "connection": "wifi"},
         )
         with requests_mock.Mocker() as mock:
+            provider.__version__ = "v0.0.0"
             mock.post(
                 "https://resolver.eu.confidence.dev/v1/flags:resolve",
                 json=SUCCESSFUL_FLAG_RESOLVE,
@@ -247,7 +248,11 @@ EXPECTED_REQUEST_PAYLOAD = json.loads(
     "connection": "wifi"
   },
   "apply": true,
-  "flags": ["flags/python-flag-1"]
+  "flags": ["flags/python-flag-1"],
+  "sdk": {
+    "id": "SDK_ID_PYTHON_PROVIDER",
+    "version": "v0.0.0"
+   }
 }"""
 )
 

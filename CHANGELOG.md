@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.3](https://github.com/spotify/confidence-openfeature-provider-python/compare/v0.1.2...v0.1.3) (2023-11-16)
+
+
+### 🐛 Bug Fixes
+
+* check types with mypy ([#31](https://github.com/spotify/confidence-openfeature-provider-python/issues/31)) ([e6d4dcd](https://github.com/spotify/confidence-openfeature-provider-python/commit/e6d4dcd664971935905dc58d0681ecc46b0063de))
+
+
+### ✨ New Features
+
+* Add SDK id and version to requests ([#34](https://github.com/spotify/confidence-openfeature-provider-python/issues/34)) ([6c82014](https://github.com/spotify/confidence-openfeature-provider-python/commit/6c82014717feaa4a13db9397cbdf7ff71e504c17))
+
 ## [0.1.2](https://github.com/spotify/confidence-openfeature-provider-python/compare/v0.1.1...v0.1.2) (2023-10-09)
 
 

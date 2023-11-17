@@ -146,7 +146,11 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):  # type: ignore
 
         result = self._resolve(FlagName(flag_id), context)
         if result.variant is None or len(str(result.value)) == 0:
-            return FlagResolutionDetails(value=default_value, reason=Reason.DEFAULT)
+            return FlagResolutionDetails(
+                value=default_value,
+                reason=Reason.DEFAULT,
+                flag_metadata={"flag_key": flag_key},
+            )
 
         variant_name = VariantName.parse(result.variant)
 
@@ -155,7 +159,10 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):  # type: ignore
             value = default_value
 
         return FlagResolutionDetails(
-            value=value, variant=variant_name.variant, reason=Reason.TARGETING_MATCH
+            value=value,
+            variant=variant_name.variant,
+            reason=Reason.TARGETING_MATCH,
+            flag_metadata={"flag_key": flag_key},
         )
 
     def _resolve(self, flag_name: FlagName, context: Dict[str, str]) -> ResolveResult:

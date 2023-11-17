@@ -50,6 +50,26 @@ jobs:
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
 
+      - name: Install pypa/build
+        run: >-
+          python -m                                           
+          pip install                                         
+          build                                               
+          --user                                              
+
+      - name: Make sure dist folder is empty
+        run: >-
+          rm -rf dist/*                                       
+
+      - name: Build a binary wheel and a source tarball
+        run: >-
+          python -m                                           
+          build                                               
+          --sdist                                             
+          --wheel                                             
+          --outdir dist/                                      
+          .
+
       - name: Run black formatter check
         run: black --check confidence
 

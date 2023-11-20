@@ -1,6 +1,6 @@
 # Confidence OpenFeature Python Provider
 
-This repo contains the OpenFeature Python flag provider for Confidence.
+This repo contains the OpenFeature Python flag provider for [Confidence](https://confidence.spotify.com/).
 
 ## OpenFeature
 

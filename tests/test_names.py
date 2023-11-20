@@ -4,7 +4,6 @@ from confidence.names import FlagName, VariantName
 
 
 class NamesTest(unittest.TestCase):
-
     def test_flag_name_valid(self):
         self.assertEqual(str(FlagName("myFlag")), "flags/myFlag")
 
@@ -27,5 +26,5 @@ class NamesTest(unittest.TestCase):
         self.assertRaises(ValueError, VariantName.parse, "variant-1")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

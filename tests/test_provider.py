@@ -7,6 +7,7 @@ from confidence.provider import Region
 from confidence.provider import Reason
 from confidence import provider
 
+
 class TestMyProvider(unittest.TestCase):
     def setUp(self):
         self.provider = ConfidenceOpenFeatureProvider(client_secret="test")
@@ -27,7 +28,9 @@ class TestMyProvider(unittest.TestCase):
                 evaluation_context=ctx,
             )
 
-            self.assertEqual(result.flag_key, "python-flag-1.string-key")
+            self.assertEqual(
+                result.flag_metadata["flag_key"], "python-flag-1.string-key"
+            )
             self.assertEqual(result.value, "outer-string")
             self.assertEqual(result.variant, "enabled")
             self.assertEqual(result.reason, Reason.TARGETING_MATCH)
@@ -46,7 +49,9 @@ class TestMyProvider(unittest.TestCase):
             )
 
             self.assertEqual(result.reason, Reason.DEFAULT)
-            self.assertEqual(result.flag_key, "some-flag-that-doesnt-exist")
+            self.assertEqual(
+                result.flag_metadata["flag_key"], "some-flag-that-doesnt-exist"
+            )
             self.assertEqual(result.value, "yellow")
             self.assertIsNone(result.variant)
 
@@ -88,18 +93,22 @@ class TestMyProvider(unittest.TestCase):
             )
             result = self.provider.resolve_object_details(
                 flag_key="python-flag-1",
-                default_value={'key': 'value'},
+                default_value={"key": "value"},
                 evaluation_context=ctx,
             )
 
             self.assertEqual(result.reason, Reason.TARGETING_MATCH)
-            self.assertEqual(result.flag_key, "python-flag-1")
-            self.assertEqual(result.value, {'double-key': 42.42,
-                                            'enabled': True,
-                                            'int-key': 42,
-                                            'string-key': 'outer-string',
-                                            'struct-key': {'string-key': 'inner-string'}}
-                             )
+            self.assertEqual(result.flag_metadata["flag_key"], "python-flag-1")
+            self.assertEqual(
+                result.value,
+                {
+                    "double-key": 42.42,
+                    "enabled": True,
+                    "int-key": 42,
+                    "string-key": "outer-string",
+                    "struct-key": {"string-key": "inner-string"},
+                },
+            )
 
     def test_resolve_struct_details(self):
         ctx = EvaluationContext(
@@ -112,13 +121,15 @@ class TestMyProvider(unittest.TestCase):
             )
             result = self.provider.resolve_object_details(
                 flag_key="python-flag-1.struct-key",
-                default_value={'key': 'value'},
+                default_value={"key": "value"},
                 evaluation_context=ctx,
             )
 
             self.assertEqual(result.reason, Reason.TARGETING_MATCH)
-            self.assertEqual(result.flag_key, "python-flag-1.struct-key")
-            self.assertEqual(result.value, {'string-key': 'inner-string'})
+            self.assertEqual(
+                result.flag_metadata["flag_key"], "python-flag-1.struct-key"
+            )
+            self.assertEqual(result.value, {"string-key": "inner-string"})
 
     def test_resolve_integer_details(self):
         ctx = EvaluationContext(
@@ -136,7 +147,7 @@ class TestMyProvider(unittest.TestCase):
             )
 
             self.assertEqual(result.reason, Reason.TARGETING_MATCH)
-            self.assertEqual(result.flag_key, "python-flag-1.int-key")
+            self.assertEqual(result.flag_metadata["flag_key"], "python-flag-1.int-key")
             self.assertEqual(result.value, 42)
 
     def test_resolve_boolean_details(self):
@@ -155,7 +166,7 @@ class TestMyProvider(unittest.TestCase):
             )
 
             self.assertEqual(result.reason, Reason.TARGETING_MATCH)
-            self.assertEqual(result.flag_key, "python-flag-1.enabled")
+            self.assertEqual(result.flag_metadata["flag_key"], "python-flag-1.enabled")
             self.assertEqual(result.value, True)
 
     def test_resolve_float_details(self):
@@ -174,7 +185,9 @@ class TestMyProvider(unittest.TestCase):
             )
 
             self.assertEqual(result.reason, Reason.TARGETING_MATCH)
-            self.assertEqual(result.flag_key, "python-flag-1.double-key")
+            self.assertEqual(
+                result.flag_metadata["flag_key"], "python-flag-1.double-key"
+            )
             self.assertEqual(result.value, 42.42)
 
     def test_resolve_without_targeting_key(self):
@@ -202,9 +215,7 @@ class TestMyProvider(unittest.TestCase):
             )
 
     def test_no_segment_match(self):
-        ctx = EvaluationContext(
-            attributes={"connection": "wifi"}
-        )
+        ctx = EvaluationContext(attributes={"connection": "wifi"})
         with requests_mock.Mocker() as mock:
             mock.post(
                 "https://resolver.eu.confidence.dev/v1/flags:resolve",

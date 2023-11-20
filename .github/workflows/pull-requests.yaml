@@ -75,6 +75,9 @@ jobs:
 
       - name: Run flake8 formatter check
         run: flake8 confidence
+ 
+      - name: Run type linter check
+        run: mypy confidence
 
       - name: Run type linter check
         run: mypy confidence

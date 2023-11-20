@@ -6,12 +6,7 @@ from confidence.provider import ConfidenceOpenFeatureProvider
 from tests.test_provider import SUCCESSFUL_FLAG_RESOLVE
 
 
-@pytest.mark.parametrize(
-    "apply_on_resolve",
-    (
-            (True, False)
-    )
-)
+@pytest.mark.parametrize("apply_on_resolve", ((True, False)))
 def test_apply_configurable(apply_on_resolve):
     ctx = EvaluationContext(targeting_key="meh")
     apply_provider = ConfidenceOpenFeatureProvider(

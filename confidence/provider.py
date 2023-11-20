@@ -11,7 +11,7 @@ from openfeature.exception import (
     ParseError,
     TypeMismatchError,
 )
-from openfeature.flag_evaluation import FlagEvaluationDetails
+from openfeature.flag_evaluation import FlagResolutionDetails
 from openfeature.flag_evaluation import Reason
 from openfeature.api import Hook
 from openfeature.provider.metadata import Metadata
@@ -83,7 +83,7 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):  # type: ignore
         flag_key: str,
         default_value: bool,
         evaluation_context: Optional[EvaluationContext] = None,
-    ) -> FlagEvaluationDetails[bool]:
+    ) -> FlagResolutionDetails[bool]:
         return self._evaluate(flag_key, bool, default_value, evaluation_context)
 
     def resolve_float_details(
@@ -91,7 +91,7 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):  # type: ignore
         flag_key: str,
         default_value: float,
         evaluation_context: Optional[EvaluationContext] = None,
-    ) -> FlagEvaluationDetails[float]:
+    ) -> FlagResolutionDetails[float]:
         return self._evaluate(flag_key, float, default_value, evaluation_context)
 
     def resolve_integer_details(
@@ -99,7 +99,7 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):  # type: ignore
         flag_key: str,
         default_value: int,
         evaluation_context: Optional[EvaluationContext] = None,
-    ) -> FlagEvaluationDetails[int]:
+    ) -> FlagResolutionDetails[int]:
         return self._evaluate(flag_key, int, default_value, evaluation_context)
 
     def resolve_string_details(
@@ -107,15 +107,15 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):  # type: ignore
         flag_key: str,
         default_value: str,
         evaluation_context: Optional[EvaluationContext] = None,
-    ) -> FlagEvaluationDetails[str]:
+    ) -> FlagResolutionDetails[str]:
         return self._evaluate(flag_key, str, default_value, evaluation_context)
 
     def resolve_object_details(
         self,
         flag_key: str,
-        default_value: Object,
+        default_value: Union[Object, List[Primitive]],
         evaluation_context: Optional[EvaluationContext] = None,
-    ) -> FlagEvaluationDetails[dict]:
+    ) -> FlagResolutionDetails[Union[Object, List[Primitive]]]:
         return self._evaluate(flag_key, Object, default_value, evaluation_context)
 
     #
@@ -128,7 +128,7 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):  # type: ignore
         value_type: Type[FieldType],
         default_value: FieldType,
         evaluation_context: Optional[EvaluationContext] = None,
-    ) -> FlagEvaluationDetails[Any]:
+    ) -> FlagResolutionDetails[Any]:
         if evaluation_context is None:
             evaluation_context = EvaluationContext()
 
@@ -146,7 +146,11 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):  # type: ignore
 
         result = self._resolve(FlagName(flag_id), context)
         if result.variant is None or len(str(result.value)) == 0:
-            return FlagEvaluationDetails(flag_key, default_value, reason=Reason.DEFAULT)
+            return FlagResolutionDetails(
+                value=default_value,
+                reason=Reason.DEFAULT,
+                flag_metadata={"flag_key": flag_key},
+            )
 
         variant_name = VariantName.parse(result.variant)
 
@@ -154,8 +158,11 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):  # type: ignore
         if value is None:
             value = default_value
 
-        return FlagEvaluationDetails(
-            flag_key, value, variant_name.variant, reason=Reason.TARGETING_MATCH
+        return FlagResolutionDetails(
+            value=value,
+            variant=variant_name.variant,
+            reason=Reason.TARGETING_MATCH,
+            flag_metadata={"flag_key": flag_key},
         )
 
     def _resolve(self, flag_name: FlagName, context: Dict[str, str]) -> ResolveResult:

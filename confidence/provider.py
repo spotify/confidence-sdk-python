@@ -1,6 +1,17 @@
 import dataclasses
-from typing import Any, Dict, List, Optional, Type, Union, get_args, get_origin, TypeGuard
+from typing import (
+    Any,
+    Dict,
+    List,
+    Optional,
+    Type,
+    Union,
+    get_args,
+    get_origin,
+)
 from enum import Enum
+from typing_extensions import TypeGuard
+
 from confidence import __version__
 
 import requests

@@ -13,13 +13,13 @@ class TestMyProvider(unittest.TestCase):
         self.provider = ConfidenceOpenFeatureProvider(client_secret="test")
 
     def test_region_has_endpoint(self):
-        assert Region.EU.endpoint()
+        assert Region.GLOBAL.endpoint()
 
     def test_resolve_string_with_dot_notation(self):
         ctx = EvaluationContext(targeting_key="boop")
         with requests_mock.Mocker() as mock:
             mock.post(
-                "https://resolver.eu.confidence.dev/v1/flags:resolve",
+                "https://resolver.confidence.dev/v1/flags:resolve",
                 json=SUCCESSFUL_FLAG_RESOLVE,
             )
             result = self.provider.resolve_string_details(
@@ -39,7 +39,7 @@ class TestMyProvider(unittest.TestCase):
         ctx = EvaluationContext(targeting_key="boop")
         with requests_mock.Mocker() as mock:
             mock.post(
-                "https://resolver.eu.confidence.dev/v1/flags:resolve",
+                "https://resolver.confidence.dev/v1/flags:resolve",
                 json=NO_MATCH_STRING_FLAG_RESOLVE,
             )
             result = self.provider.resolve_string_details(
@@ -63,7 +63,7 @@ class TestMyProvider(unittest.TestCase):
         with requests_mock.Mocker() as mock:
             provider.__version__ = "v0.0.0"
             mock.post(
-                "https://resolver.eu.confidence.dev/v1/flags:resolve",
+                "https://resolver.confidence.dev/v1/flags:resolve",
                 json=SUCCESSFUL_FLAG_RESOLVE,
             )
             self.provider.resolve_string_details(
@@ -75,7 +75,7 @@ class TestMyProvider(unittest.TestCase):
             last_request = mock.request_history[-1]
             self.assertEqual(last_request.method, "POST")
             self.assertEqual(
-                last_request.url, "https://resolver.eu.confidence.dev/v1/flags:resolve"
+                last_request.url, "https://resolver.confidence.dev/v1/flags:resolve"
             )
             self.assertEqual(
                 last_request.json(),
@@ -88,7 +88,7 @@ class TestMyProvider(unittest.TestCase):
         )
         with requests_mock.Mocker() as mock:
             mock.post(
-                "https://resolver.eu.confidence.dev/v1/flags:resolve",
+                "https://resolver.confidence.dev/v1/flags:resolve",
                 json=SUCCESSFUL_FLAG_RESOLVE,
             )
             result = self.provider.resolve_object_details(
@@ -116,7 +116,7 @@ class TestMyProvider(unittest.TestCase):
         )
         with requests_mock.Mocker() as mock:
             mock.post(
-                "https://resolver.eu.confidence.dev/v1/flags:resolve",
+                "https://resolver.confidence.dev/v1/flags:resolve",
                 json=SUCCESSFUL_FLAG_RESOLVE,
             )
             result = self.provider.resolve_object_details(
@@ -137,7 +137,7 @@ class TestMyProvider(unittest.TestCase):
         )
         with requests_mock.Mocker() as mock:
             mock.post(
-                "https://resolver.eu.confidence.dev/v1/flags:resolve",
+                "https://resolver.confidence.dev/v1/flags:resolve",
                 json=SUCCESSFUL_FLAG_RESOLVE,
             )
             result = self.provider.resolve_integer_details(
@@ -156,7 +156,7 @@ class TestMyProvider(unittest.TestCase):
         )
         with requests_mock.Mocker() as mock:
             mock.post(
-                "https://resolver.eu.confidence.dev/v1/flags:resolve",
+                "https://resolver.confidence.dev/v1/flags:resolve",
                 json=SUCCESSFUL_FLAG_RESOLVE,
             )
             result = self.provider.resolve_boolean_details(
@@ -175,7 +175,7 @@ class TestMyProvider(unittest.TestCase):
         )
         with requests_mock.Mocker() as mock:
             mock.post(
-                "https://resolver.eu.confidence.dev/v1/flags:resolve",
+                "https://resolver.confidence.dev/v1/flags:resolve",
                 json=SUCCESSFUL_FLAG_RESOLVE,
             )
             result = self.provider.resolve_float_details(
@@ -196,7 +196,7 @@ class TestMyProvider(unittest.TestCase):
         )
         with requests_mock.Mocker() as mock:
             mock.post(
-                "https://resolver.eu.confidence.dev/v1/flags:resolve",
+                "https://resolver.confidence.dev/v1/flags:resolve",
                 json=SUCCESSFUL_FLAG_RESOLVE,
             )
             result = self.provider.resolve_string_details(
@@ -218,7 +218,7 @@ class TestMyProvider(unittest.TestCase):
         ctx = EvaluationContext(attributes={"connection": "wifi"})
         with requests_mock.Mocker() as mock:
             mock.post(
-                "https://resolver.eu.confidence.dev/v1/flags:resolve",
+                "https://resolver.confidence.dev/v1/flags:resolve",
                 json=NO_SEGMENT_MATCH_STRING_FLAG_RESOLVE,
             )
             result = self.provider.resolve_string_details(

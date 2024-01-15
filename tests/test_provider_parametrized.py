@@ -14,7 +14,7 @@ def test_apply_configurable(apply_on_resolve):
     )
     with requests_mock.Mocker() as mock:
         mock.post(
-            "https://resolver.eu.confidence.dev/v1/flags:resolve",
+            "https://resolver.confidence.dev/v1/flags:resolve",
             json=SUCCESSFUL_FLAG_RESOLVE,
         )
 

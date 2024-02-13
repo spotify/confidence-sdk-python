@@ -10,6 +10,9 @@
 
 
 ### 🧹 Chore
+* update OF sdk to 0.4.2 ([dd4a4d7](https://github.com/spotify/confidence-openfeature-provider-python/commit/dd4a4d74cb91331ce6768ef12ee08b14b89c7eac)
+
+* explicitly add the typing-extensions dep ([49ac4eb](https://github.com/spotify/confidence-openfeature-provider-python/commit/49ac4ebbb23fa28f1f6d69b6fea29e000ef63759))
 
 * update openfeature sdk version to 0.4.1 ([#35](https://github.com/spotify/confidence-openfeature-provider-python/issues/35)) ([16ee55f](https://github.com/spotify/confidence-openfeature-provider-python/commit/16ee55f804b3a488926647a697cf37a4bf25af69))
 

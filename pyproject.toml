@@ -24,7 +24,7 @@ classifiers = [
 keywords = []
 dependencies = [
     "requests==2.31.0", 
-    "openfeature-sdk==0.3.1", 
+    "openfeature-sdk==0.4.2", 
     "typing_extensions==4.9.0"
 ]
 requires-python = ">=3.8"

@@ -1,16 +1,20 @@
 import requests_mock
 import unittest
 import json
-from confidence.provider import ConfidenceOpenFeatureProvider
-from confidence.provider import EvaluationContext
-from confidence.provider import Region
-from confidence.provider import Reason
-from confidence import provider
+
+from openfeature.flag_evaluation import Reason
+
+import confidence.confidence
+from confidence.confidence import Confidence
+from confidence.provider.provider import ConfidenceOpenFeatureProvider
+from confidence.provider.provider import EvaluationContext
+from confidence.provider.provider import Region
+from confidence.provider import provider
 
 
 class TestMyProvider(unittest.TestCase):
     def setUp(self):
-        self.provider = ConfidenceOpenFeatureProvider(client_secret="test")
+        self.provider = ConfidenceOpenFeatureProvider(Confidence(client_secret="test"))
 
     def test_region_has_endpoint(self):
         assert Region.GLOBAL.endpoint()
@@ -27,6 +31,8 @@ class TestMyProvider(unittest.TestCase):
                 default_value="yellow",
                 evaluation_context=ctx,
             )
+
+            print("result", result)
 
             self.assertEqual(
                 result.flag_metadata["flag_key"], "python-flag-1.string-key"
@@ -61,7 +67,7 @@ class TestMyProvider(unittest.TestCase):
             attributes={"user": {"country": "US"}, "connection": "wifi"},
         )
         with requests_mock.Mocker() as mock:
-            provider.__version__ = "v0.0.0"
+            confidence.confidence.__version__ = "v0.0.0"
             mock.post(
                 "https://resolver.confidence.dev/v1/flags:resolve",
                 json=SUCCESSFUL_FLAG_RESOLVE,
@@ -261,7 +267,7 @@ EXPECTED_REQUEST_PAYLOAD = json.loads(
   "apply": true,
   "flags": ["flags/python-flag-1"],
   "sdk": {
-    "id": "SDK_ID_PYTHON_PROVIDER",
+    "id": "SDK_ID_PYTHON_CONFIDENCE",
     "version": "v0.0.0"
    }
 }"""

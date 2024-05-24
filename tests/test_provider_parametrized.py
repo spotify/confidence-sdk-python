@@ -2,7 +2,8 @@ import pytest
 import requests_mock
 from openfeature.evaluation_context import EvaluationContext
 
-from confidence.provider import ConfidenceOpenFeatureProvider
+from confidence.confidence import Confidence
+from confidence.provider.provider import ConfidenceOpenFeatureProvider
 from tests.test_provider import SUCCESSFUL_FLAG_RESOLVE
 
 
@@ -10,7 +11,7 @@ from tests.test_provider import SUCCESSFUL_FLAG_RESOLVE
 def test_apply_configurable(apply_on_resolve):
     ctx = EvaluationContext(targeting_key="meh")
     apply_provider = ConfidenceOpenFeatureProvider(
-        client_secret="test", apply_on_resolve=apply_on_resolve
+        Confidence(client_secret="test", apply_on_resolve=apply_on_resolve)
     )
     with requests_mock.Mocker() as mock:
         mock.post(

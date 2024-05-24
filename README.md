@@ -40,7 +40,7 @@ The flag's schema is validated against the requested data type, and if it doesn'
 
 ```python
 
-from confidence.provider import Region
+from confidence.confidence import Region
 from confidence.provider import ConfidenceOpenFeatureProvider
 from openfeature.api import EvaluationContext
 from openfeature import api

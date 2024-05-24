@@ -1,6 +1,7 @@
 import typing
 from enum import Enum
 
+
 class ErrorCode(Enum):
     PROVIDER_NOT_READY = "NOT_READY"
     FLAG_NOT_FOUND = "FLAG_NOT_FOUND"
@@ -18,7 +19,7 @@ class ConfidenceError(Exception):
     """
 
     def __init__(
-            self, error_code: ErrorCode, error_message: typing.Optional[str] = None
+        self, error_code: ErrorCode, error_message: typing.Optional[str] = None
     ):
         """
         Constructor for the generic ConfidenceError.

@@ -10,6 +10,9 @@ from typing import (
     get_args,
 )
 
+import openfeature.exception as open_feature_exception
+
+import openfeature.exception
 from openfeature.api import EvaluationContext
 from openfeature.api import Hook
 from openfeature.flag_evaluation import FlagResolutionDetails
@@ -18,6 +21,7 @@ from openfeature.provider.provider import AbstractProvider
 from typing_extensions import TypeGuard
 
 import confidence.confidence
+from confidence.errors import ErrorCode
 
 EU_RESOLVE_API_ENDPOINT = "https://resolver.eu.confidence.dev/v1"
 US_RESOLVE_API_ENDPOINT = "https://resolver.us.confidence.dev/v1"
@@ -60,11 +64,9 @@ class ResolveResult(object):
 
 
 class ConfidenceOpenFeatureProvider(AbstractProvider):
-    def __init__(
-        self,
-        confidence_sdk: confidence.confidence.Confidence
-    ):
+    def __init__(self, confidence_sdk: confidence.confidence.Confidence):
         self.confidence_sdk = confidence_sdk
+
     #
     # --- Provider API ---
     #
@@ -81,15 +83,17 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
         default_value: bool,
         evaluation_context: Optional[EvaluationContext] = None,
     ) -> FlagResolutionDetails[bool]:
-        details = self._confidence_with_context(evaluation_context).resolve_boolean_details(flag_key, default_value)
+        details = self._confidence_with_context(
+            evaluation_context
+        ).resolve_boolean_details(flag_key, default_value)
         print("Confidence result", details)
         return FlagResolutionDetails[bool](
             value=details.value,
             variant=details.variant,
             reason=details.reason,
-            error_code=details.error_code,
+            error_code=self._to_openfeature_error_code(details.error_code),
             error_message=details.error_message,
-            flag_metadata=details.flag_metadata
+            flag_metadata=details.flag_metadata,
         )
 
     def resolve_float_details(
@@ -98,14 +102,16 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
         default_value: float,
         evaluation_context: Optional[EvaluationContext] = None,
     ) -> FlagResolutionDetails[float]:
-        details = self._confidence_with_context(evaluation_context).resolve_float_details(flag_key, default_value)
+        details = self._confidence_with_context(
+            evaluation_context
+        ).resolve_float_details(flag_key, default_value)
         return FlagResolutionDetails[float](
             value=details.value,
             variant=details.variant,
             reason=details.reason,
-            error_code=details.error_code,
+            error_code=self._to_openfeature_error_code(details.error_code),
             error_message=details.error_message,
-            flag_metadata=details.flag_metadata
+            flag_metadata=details.flag_metadata,
         )
 
     def resolve_integer_details(
@@ -114,14 +120,16 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
         default_value: int,
         evaluation_context: Optional[EvaluationContext] = None,
     ) -> FlagResolutionDetails[int]:
-        details = self._confidence_with_context(evaluation_context).resolve_integer_details(flag_key, default_value)
+        details = self._confidence_with_context(
+            evaluation_context
+        ).resolve_integer_details(flag_key, default_value)
         return FlagResolutionDetails[int](
             value=details.value,
             variant=details.variant,
             reason=details.reason,
-            error_code=details.error_code,
+            error_code=self._to_openfeature_error_code(details.error_code),
             error_message=details.error_message,
-            flag_metadata=details.flag_metadata
+            flag_metadata=details.flag_metadata,
         )
 
     def resolve_string_details(
@@ -130,15 +138,17 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
         default_value: str,
         evaluation_context: Optional[EvaluationContext] = None,
     ) -> FlagResolutionDetails[str]:
-        details = self._confidence_with_context(evaluation_context).resolve_string_details(flag_key, default_value)
+        details = self._confidence_with_context(
+            evaluation_context
+        ).resolve_string_details(flag_key, default_value)
         print("Confidence result", details)
         return FlagResolutionDetails[str](
             value=details.value,
             variant=details.variant,
             reason=details.reason,
-            error_code=details.error_code,
+            error_code=self._to_openfeature_error_code(details.error_code),
             error_message=details.error_message,
-            flag_metadata=details.flag_metadata
+            flag_metadata=details.flag_metadata,
         )
 
     def resolve_object_details(
@@ -147,20 +157,32 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
         default_value: Union[Object, List[Primitive]],
         evaluation_context: Optional[EvaluationContext] = None,
     ) -> FlagResolutionDetails[Union[Object, List[Primitive]]]:
-        details = self._confidence_with_context(evaluation_context).resolve_object_details(flag_key, default_value)
+        details = self._confidence_with_context(
+            evaluation_context
+        ).resolve_object_details(flag_key, default_value)
         return FlagResolutionDetails[Union[Object, List[Primitive]]](
             value=details.value,
             variant=details.variant,
             reason=details.reason,
-            error_code=details.error_code,
+            error_code=self._to_openfeature_error_code(details.error_code),
             error_message=details.error_message,
-            flag_metadata=details.flag_metadata
+            flag_metadata=details.flag_metadata,
         )
 
-    def _confidence_with_context(self, evaluation_context: Optional[EvaluationContext]) -> confidence.confidence.Confidence:
-        eval_context: Dict[str, Union[int, str, bool, float]] = {}
+    def _to_openfeature_error_code(
+        self, error_code: Optional[ErrorCode]
+    ) -> Optional[open_feature_exception.ErrorCode]:
+        if error_code is None:
+            return None
+        return openfeature.exception.ErrorCode(error_code.name)
+
+    def _confidence_with_context(
+        self, evaluation_context: Optional[EvaluationContext]
+    ) -> confidence.confidence.Confidence:
+        eval_context: Dict[str, Union[str, int, float, bool]] = {}
         if evaluation_context:
-            eval_context["targeting_key"] = evaluation_context.targeting_key
+            if evaluation_context.targeting_key:
+                eval_context["targeting_key"] = evaluation_context.targeting_key
             # add other fields to eval_context from evaluationContext
             for key, value in evaluation_context.attributes.items():
                 eval_context[key] = value

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import typing
 import sys
+import typing
 from dataclasses import dataclass, field
 
 from confidence.errors import ErrorCode
@@ -11,7 +11,6 @@ if sys.version_info >= (3, 11):
     from enum import StrEnum as StrEnum  # noqa: PLC0414
 else:
     from enum import Enum
-
 
     class StrEnum(str, Enum):
         """
@@ -54,12 +53,6 @@ class FlagEvaluationDetails(typing.Generic[T_co]):
     reason: typing.Optional[typing.Union[str, Reason]] = None
     error_code: typing.Optional[ErrorCode] = None
     error_message: typing.Optional[str] = None
-
-
-@dataclass
-class FlagEvaluationOptions:
-    hooks: typing.List[Hook] = field(default_factory=list)
-    hook_hints: dict = field(default_factory=dict)
 
 
 U_co = typing.TypeVar("U_co", covariant=True)

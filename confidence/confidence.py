@@ -65,14 +65,12 @@ class ResolveResult(object):
 
 
 class Confidence:
-    context: Dict[str, Union[str, int, float, bool]] = {}
+    context: Dict[str, FieldType] = {}
 
-    def put_context(self, key: str, value: Union[str, int, float, bool]) -> None:
+    def put_context(self, key: str, value: FieldType) -> None:
         self.context[key] = value
 
-    def with_context(
-        self, context: Dict[str, Union[str, int, float, bool]]
-    ) -> "Confidence":
+    def with_context(self, context: Dict[str, FieldType]) -> "Confidence":
         new_confidence = Confidence(
             self._client_secret, self._region, self._apply_on_resolve
         )
@@ -124,7 +122,7 @@ class Confidence:
         flag_key: str,
         value_type: Type[FieldType],
         default_value: FieldType,
-        context: Dict[str, Union[str, int, float, bool]],
+        context: Dict[str, FieldType],
     ) -> FlagResolutionDetails[Any]:
         if "." in flag_key:
             flag_id, value_path = flag_key.split(".", 1)
@@ -152,10 +150,14 @@ class Confidence:
             flag_metadata={"flag_key": flag_key},
         )
 
-    def track(self, event_name: str, data: Dict[str, str]):
+    # type-arg: ignore
+    def track(self, event_name: str, data: Dict[str, FieldType]):
         return asyncio.create_task(self._send_event(event_name, data))
 
-    async def _send_event(self, event_name: str, data: Dict[str, str]) -> None:
+    async def track_async(self, event_name: str, data: Dict[str, FieldType]):
+        return await self._send_event(event_name, data)
+
+    async def _send_event(self, event_name: str, data: Dict[str, FieldType]) -> None:
         current_time = datetime.utcnow().isoformat() + "Z"
         request_body = {
             "clientSecret": self._client_secret,
@@ -163,7 +165,7 @@ class Confidence:
             "events": [
                 {
                     "eventDefinition": f"eventDefinitions/{event_name}",
-                    "payload": {**self.context, **data},
+                    "payload": {"context": {**self.context}, **data},
                     "eventTime": current_time,
                 }
             ],
@@ -176,7 +178,7 @@ class Confidence:
         response.raise_for_status()
 
     def _resolve(
-        self, flag_name: FlagName, context: Dict[str, Union[str, int, float, bool]]
+        self, flag_name: FlagName, context: Dict[str, FieldType]
     ) -> ResolveResult:
         request_body = {
             "clientSecret": self._client_secret,

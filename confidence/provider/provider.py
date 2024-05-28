@@ -64,7 +64,7 @@ class ResolveResult(object):
 
 
 def _to_openfeature_error_code(
-        error_code: Optional[ErrorCode]
+    error_code: Optional[ErrorCode],
 ) -> Optional[open_feature_exception.ErrorCode]:
     """
     Convert a confidence error code to an openfeature error code
@@ -196,7 +196,7 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
     def _confidence_with_context(
         self, evaluation_context: Optional[EvaluationContext]
     ) -> confidence.confidence.Confidence:
-        eval_context: Dict[str, Union[str, int, float, bool]] = {}
+        eval_context: Dict[str, FieldType] = {}
         if evaluation_context:
             if evaluation_context.targeting_key:
                 eval_context["targeting_key"] = evaluation_context.targeting_key

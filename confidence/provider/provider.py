@@ -63,6 +63,32 @@ class ResolveResult(object):
     token: str
 
 
+def _to_openfeature_error_code(
+        error_code: Optional[ErrorCode]
+) -> Optional[open_feature_exception.ErrorCode]:
+    """
+    Convert a confidence error code to an openfeature error code
+    :param error_code:
+    :return:
+    """
+    if error_code is None:
+        return None
+    if error_code is ErrorCode.FLAG_NOT_FOUND:
+        return openfeature.exception.ErrorCode.FLAG_NOT_FOUND
+    if error_code is ErrorCode.TYPE_MISMATCH:
+        return openfeature.exception.ErrorCode.TYPE_MISMATCH
+    if error_code is ErrorCode.TARGETING_KEY_MISSING:
+        return openfeature.exception.ErrorCode.TARGETING_KEY_MISSING
+    if error_code is ErrorCode.INVALID_CONTEXT:
+        return openfeature.exception.ErrorCode.INVALID_CONTEXT
+    if error_code is ErrorCode.GENERAL:
+        return openfeature.exception.ErrorCode.GENERAL
+    if error_code is ErrorCode.PARSE_ERROR:
+        return openfeature.exception.ErrorCode.PARSE_ERROR
+    if error_code is ErrorCode.NOT_READY:
+        return openfeature.exception.ErrorCode.PROVIDER_NOT_READY
+
+
 class ConfidenceOpenFeatureProvider(AbstractProvider):
     def __init__(self, confidence_sdk: confidence.confidence.Confidence):
         self.confidence_sdk = confidence_sdk
@@ -86,12 +112,11 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
         details = self._confidence_with_context(
             evaluation_context
         ).resolve_boolean_details(flag_key, default_value)
-        print("Confidence result", details)
         return FlagResolutionDetails[bool](
             value=details.value,
             variant=details.variant,
             reason=details.reason,
-            error_code=self._to_openfeature_error_code(details.error_code),
+            error_code=_to_openfeature_error_code(details.error_code),
             error_message=details.error_message,
             flag_metadata=details.flag_metadata,
         )
@@ -109,7 +134,7 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
             value=details.value,
             variant=details.variant,
             reason=details.reason,
-            error_code=self._to_openfeature_error_code(details.error_code),
+            error_code=_to_openfeature_error_code(details.error_code),
             error_message=details.error_message,
             flag_metadata=details.flag_metadata,
         )
@@ -127,7 +152,7 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
             value=details.value,
             variant=details.variant,
             reason=details.reason,
-            error_code=self._to_openfeature_error_code(details.error_code),
+            error_code=_to_openfeature_error_code(details.error_code),
             error_message=details.error_message,
             flag_metadata=details.flag_metadata,
         )
@@ -141,12 +166,11 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
         details = self._confidence_with_context(
             evaluation_context
         ).resolve_string_details(flag_key, default_value)
-        print("Confidence result", details)
         return FlagResolutionDetails[str](
             value=details.value,
             variant=details.variant,
             reason=details.reason,
-            error_code=self._to_openfeature_error_code(details.error_code),
+            error_code=_to_openfeature_error_code(details.error_code),
             error_message=details.error_message,
             flag_metadata=details.flag_metadata,
         )
@@ -164,17 +188,10 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
             value=details.value,
             variant=details.variant,
             reason=details.reason,
-            error_code=self._to_openfeature_error_code(details.error_code),
+            error_code=_to_openfeature_error_code(details.error_code),
             error_message=details.error_message,
             flag_metadata=details.flag_metadata,
         )
-
-    def _to_openfeature_error_code(
-        self, error_code: Optional[ErrorCode]
-    ) -> Optional[open_feature_exception.ErrorCode]:
-        if error_code is None:
-            return None
-        return openfeature.exception.ErrorCode(error_code.name)
 
     def _confidence_with_context(
         self, evaluation_context: Optional[EvaluationContext]

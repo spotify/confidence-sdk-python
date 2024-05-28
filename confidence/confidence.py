@@ -152,10 +152,10 @@ class Confidence:
             flag_metadata={"flag_key": flag_key},
         )
 
-    def track(self, event_name: str, context: Dict[str, str]) -> None:
-        asyncio.create_task(self._send_event(event_name, context))
+    def track(self, event_name: str, data: Dict[str, str]):
+        return asyncio.create_task(self._send_event(event_name, data))
 
-    async def _send_event(self, event_name: str, context: Dict[str, str]) -> None:
+    async def _send_event(self, event_name: str, data: Dict[str, str]) -> None:
         current_time = datetime.utcnow().isoformat() + "Z"
         request_body = {
             "clientSecret": self._client_secret,
@@ -163,14 +163,12 @@ class Confidence:
             "events": [
                 {
                     "eventDefinition": f"eventDefinitions/{event_name}",
-                    "payload": {**self.context, **context},
+                    "payload": {**self.context, **data},
                     "eventTime": current_time,
                 }
             ],
             "sdk": {"id": "SDK_ID_PYTHON_CONFIDENCE", "version": __version__},
         }
-
-        print(request_body)
 
         event_url = "https://events.confidence.dev/v1/events:publish"
         headers = {"Content-Type": "application/json", "Accept": "application/json"}
@@ -187,8 +185,6 @@ class Confidence:
             "flags": [str(flag_name)],
             "sdk": {"id": "SDK_ID_PYTHON_CONFIDENCE", "version": __version__},
         }
-
-        print("Request body", request_body)
 
         resolve_url = f"{self._api_endpoint}/flags:resolve"
         response = requests.post(resolve_url, json=request_body)

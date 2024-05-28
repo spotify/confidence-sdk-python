@@ -32,8 +32,6 @@ class TestMyProvider(unittest.TestCase):
                 evaluation_context=ctx,
             )
 
-            print("result", result)
-
             self.assertEqual(
                 result.flag_metadata["flag_key"], "python-flag-1.string-key"
             )

@@ -10,8 +10,11 @@ build-backend = "setuptools.build_meta"
 write_to = "confidence/_version.py"
 local_scheme = "no-local-version"
 
+[tool.setuptools]
+packages = {find = {exclude = ["demo"]}}
+
 [project]
-name = "confidence_openfeature_provider"
+name = "spotify_confidence_sdk"
 dynamic = ["version"]
 description = "Confidence provider for the OpenFeature SDK"
 readme = "README.md"

@@ -6,9 +6,9 @@ from openfeature.flag_evaluation import Reason
 
 import confidence.confidence
 from confidence.confidence import Confidence
-from confidence.provider.provider import ConfidenceOpenFeatureProvider
-from confidence.provider.provider import EvaluationContext
-from confidence.provider.provider import Region
+from confidence.openfeature_provider import ConfidenceOpenFeatureProvider
+from confidence.openfeature_provider import EvaluationContext
+from confidence.openfeature_provider import Region
 
 
 class TestMyProvider(unittest.TestCase):

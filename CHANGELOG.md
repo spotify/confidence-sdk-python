@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/spotify/confidence-openfeature-provider-python/compare/v0.2.0...v0.2.1) (2024-05-29)
+
+
+### 🐛 Bug Fixes
+
+* Change the artifact name for the library to confidence-sdk ([#51](https://github.com/spotify/confidence-openfeature-provider-python/issues/51)) ([6ad000f](https://github.com/spotify/confidence-openfeature-provider-python/commit/6ad000f22f793f8b263f710bf6918ea71adfeaa3))
+
 ## [0.2.0](https://github.com/spotify/confidence-openfeature-provider-python/compare/v0.1.4...v0.2.0) (2024-05-29)
 
 

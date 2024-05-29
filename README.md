@@ -1,11 +1,6 @@
-# Confidence OpenFeature Python Provider
+# Confidence SDK
 
-This repo contains the OpenFeature Python flag provider for [Confidence](https://confidence.spotify.com/).
-
-## OpenFeature
-
-Before starting to use the provider, it can be helpful to read through the general [OpenFeature docs](https://docs.openfeature.dev/)
-and get familiar with the concepts. 
+This repo contains the [Confidence](https://confidence.spotify.com/) SDK for python and the OpenFeature Python flag provider.
 
 ## Adding the dependency
 
@@ -24,7 +19,7 @@ pip install -r requirements.txt
 
 ### Creating and using the flag provider
 
-Below is an example for how to create a OpenFeature client using the Confidence flag provider, and then resolve
+Below is an example for how to create a Confidence client, and then resolve
 a flag with a boolean attribute. The provider is configured with an api key and a region, which will determine
 where it will send the resolving requests. 
 
@@ -39,25 +34,15 @@ The flag's schema is validated against the requested data type, and if it doesn'
 
 ```python
 
+from confidence.confidence import Confidence
 from confidence.confidence import Region
-from confidence.openfeature_provider import ConfidenceOpenFeatureProvider
-from openfeature.api import EvaluationContext
-from openfeature import api
 
-provider = ConfidenceOpenFeatureProvider("client_secret", Region.EU)
-
-api.set_provider(provider)
-open_feature_client = api.get_client()
-
-ctx = EvaluationContext(targeting_key="random", attributes={
-    "user": {
-        "country": "SE"
-    }
-})
-
-flag_value = open_feature_client.get_boolean_value(flag_key="test-flag.boolean-key", default_value=False,
-                                                   evaluation_context=ctx)
-
+confidence = Confidence("API_KEY", region=Region.EU)
+# to send an event
+confidence.with_context({"app": "python"}).track("event_name", {})
+#to resolve a flag
+default_value = False
+flag_value = confidence.resolve_boolean_details("test-flag.boolean-key", default_value)
 print(flag_value)
 
 ```

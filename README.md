@@ -19,9 +19,8 @@ pip install -r requirements.txt
 
 ### Creating and using the flag provider
 
-Below is an example for how to create a Confidence client, and then resolve
-a flag with a boolean attribute. The provider is configured with an api key and a region, which will determine
-where it will send the resolving requests. 
+Below is an example for how to initialize the Confidence SDK, and then resolve
+a flag with a boolean attribute. The SDK is configured with an api key, which will authorize the resolving requests. 
 
 The flag will be applied immediately, meaning that Confidence will count the targeted user as having received the treatment. 
 
@@ -37,7 +36,7 @@ The flag's schema is validated against the requested data type, and if it doesn'
 from confidence.confidence import Confidence
 from confidence.confidence import Region
 
-confidence = Confidence("API_KEY", region=Region.EU)
+confidence = Confidence("API_KEY")
 # to send an event
 confidence.with_context({"app": "python"}).track("event_name", {})
 #to resolve a flag

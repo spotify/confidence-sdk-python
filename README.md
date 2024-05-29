@@ -1,6 +1,6 @@
 # Confidence SDK
 
-This repo contains the [Confidence](https://confidence.spotify.com/) SDK for python and the OpenFeature Python flag provider.
+This repo contains the [Confidence](https://confidence.spotify.com/) SDK for python and the Confidence OpenFeature flag provider.
 
 ## Adding the dependency
 

@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.2.0](https://github.com/spotify/confidence-openfeature-provider-python/compare/v0.1.4...v0.2.0) (2024-05-29)
+
+
+### ⚠ BREAKING CHANGES
+
+* total confidence ([#49](https://github.com/spotify/confidence-openfeature-provider-python/issues/49))
+
+### ✨ New Features
+
+* total confidence ([#49](https://github.com/spotify/confidence-openfeature-provider-python/issues/49)) ([58437a3](https://github.com/spotify/confidence-openfeature-provider-python/commit/58437a355b4cad235b61b9a61c7b0131ad926c55))
+
 ## [0.1.4](https://github.com/spotify/confidence-openfeature-provider-python/compare/v0.1.3...v0.1.4) (2024-02-13)
 
 

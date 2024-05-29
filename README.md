@@ -13,7 +13,6 @@ and get familiar with the concepts.
 <!---x-release-please-start-version-->
 ```python
 pip install spotify-confidence-sdk==0.2.1
-```
 
 #### requirements.txt
 ```python

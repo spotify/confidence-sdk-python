@@ -4,11 +4,11 @@ import json
 
 from openfeature.flag_evaluation import Reason
 
-import confidence.confidence
-from confidence.confidence import Confidence
-from confidence.provider.provider import ConfidenceOpenFeatureProvider
-from confidence.provider.provider import EvaluationContext
-from confidence.provider.provider import Region
+import sdk.confidence
+from sdk.confidence import Confidence
+from sdk.openfeature_provider import ConfidenceOpenFeatureProvider
+from sdk.openfeature_provider import EvaluationContext
+from sdk.openfeature_provider import Region
 
 
 class TestMyProvider(unittest.TestCase):
@@ -64,7 +64,7 @@ class TestMyProvider(unittest.TestCase):
             attributes={"user": {"country": "US"}, "connection": "wifi"},
         )
         with requests_mock.Mocker() as mock:
-            confidence.confidence.__version__ = "v0.0.0"
+            sdk.confidence.__version__ = "v0.0.0"
             mock.post(
                 "https://resolver.confidence.dev/v1/flags:resolve",
                 json=SUCCESSFUL_FLAG_RESOLVE,

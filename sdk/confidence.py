@@ -17,8 +17,8 @@ from typing import (
 import requests
 from typing_extensions import TypeGuard
 
-from confidence import __version__
-from confidence.errors import (
+from sdk import __version__
+from sdk.errors import (
     FlagNotFoundError,
     ParseError,
     TypeMismatchError,

@@ -2,8 +2,8 @@ import pytest
 import requests_mock
 from openfeature.evaluation_context import EvaluationContext
 
-from confidence.confidence import Confidence
-from confidence.provider.provider import ConfidenceOpenFeatureProvider
+from sdk.confidence import Confidence
+from sdk.openfeature_provider import ConfidenceOpenFeatureProvider
 from tests.test_provider import SUCCESSFUL_FLAG_RESOLVE
 
 

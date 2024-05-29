@@ -4,5 +4,5 @@ confidence_openfeature_provider.egg-info/
 .idea/
 dist/
 build/
-confidence/_version.py
+sdk/_version.py
 

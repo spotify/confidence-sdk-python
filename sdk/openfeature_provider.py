@@ -20,8 +20,8 @@ from openfeature.provider.metadata import Metadata
 from openfeature.provider.provider import AbstractProvider
 from typing_extensions import TypeGuard
 
-import confidence.confidence
-from confidence.errors import ErrorCode
+import sdk.confidence
+from sdk.errors import ErrorCode
 
 EU_RESOLVE_API_ENDPOINT = "https://resolver.eu.confidence.dev/v1"
 US_RESOLVE_API_ENDPOINT = "https://resolver.us.confidence.dev/v1"
@@ -90,7 +90,7 @@ def _to_openfeature_error_code(
 
 
 class ConfidenceOpenFeatureProvider(AbstractProvider):
-    def __init__(self, confidence_sdk: confidence.confidence.Confidence):
+    def __init__(self, confidence_sdk: sdk.confidence.Confidence):
         self.confidence_sdk = confidence_sdk
 
     #
@@ -195,7 +195,7 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
 
     def _confidence_with_context(
         self, evaluation_context: Optional[EvaluationContext]
-    ) -> confidence.confidence.Confidence:
+    ) -> sdk.confidence.Confidence:
         eval_context: Dict[str, FieldType] = {}
         if evaluation_context:
             if evaluation_context.targeting_key:

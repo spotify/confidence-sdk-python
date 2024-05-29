@@ -12,14 +12,14 @@ and get familiar with the concepts.
 #### pip install
 <!---x-release-please-start-version-->
 ```python
-pip install confidence-sdk==0.1.4
+pip install spotify-confidence-sdk==0.1.4
 ```
 
 #### requirements.txt
 ```python
-confidence-sdk==0.1.4
+spotify-confidence-sdk==0.1.4
 
-pip install requirements.txt
+pip install -r requirements.txt
 ```
 <!---x-release-please-end-->
 

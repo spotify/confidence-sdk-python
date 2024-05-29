@@ -11,7 +11,7 @@ write_to = "confidence/_version.py"
 local_scheme = "no-local-version"
 
 [project]
-name = "confidence_sdk"
+name = "spotify_confidence_sdk"
 dynamic = ["version"]
 description = "Confidence provider for the OpenFeature SDK"
 readme = "README.md"

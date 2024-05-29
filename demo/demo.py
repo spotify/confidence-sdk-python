@@ -1,7 +1,7 @@
 import asyncio
 import uuid
 
-from confidence.confidence import Confidence
+from confidence-openfeature-provider import Confidence
 
 
 async def get_flag():

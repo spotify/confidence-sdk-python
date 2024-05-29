@@ -9,7 +9,6 @@ from confidence.confidence import Confidence
 from confidence.provider.provider import ConfidenceOpenFeatureProvider
 from confidence.provider.provider import EvaluationContext
 from confidence.provider.provider import Region
-from confidence.provider import provider
 
 
 class TestMyProvider(unittest.TestCase):

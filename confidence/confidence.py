@@ -2,6 +2,7 @@ import asyncio
 import dataclasses
 from datetime import datetime
 from enum import Enum
+import logging
 from typing import (
     Any,
     Dict,
@@ -82,11 +83,14 @@ class Confidence:
         client_secret: str,
         region: Region = Region.GLOBAL,
         apply_on_resolve: bool = True,
+        logger: logging.Logger = logging.getLogger("confidence_logger"),
     ):
         self._client_secret = client_secret
         self._region = region
         self._api_endpoint = region.endpoint()
         self._apply_on_resolve = apply_on_resolve
+        self.logger = logger
+        self._setup_logger(logger)
 
     def resolve_boolean_details(
         self, flag_key: str, default_value: bool
@@ -112,6 +116,17 @@ class Confidence:
         self, flag_key: str, default_value: Union[Object, List[Primitive]]
     ) -> FlagResolutionDetails[Union[Object, List[Primitive]]]:
         return self._evaluate(flag_key, Object, default_value, self.context)
+
+    def _setup_logger(self, logger: logging.Logger) -> None:
+        if logger is not None:
+            logger.setLevel(logging.DEBUG)
+            formatter = logging.Formatter(
+                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+            )
+            if not logger.hasHandlers():
+                ch = logging.StreamHandler()
+                ch.setFormatter(formatter)
+                logger.addHandler(ch)
 
     #
     # --- internals
@@ -139,8 +154,11 @@ class Confidence:
 
         variant_name = VariantName.parse(result.variant)
 
-        value = self._select(result, value_path, value_type)
+        value = self._select(result, value_path, value_type, self.logger)
         if value is None:
+            self.logger.debug(
+                f"Flag {flag_key} resolved to None. Returning default value."
+            )
             value = default_value
 
         return FlagResolutionDetails(
@@ -176,6 +194,13 @@ class Confidence:
         headers = {"Content-Type": "application/json", "Accept": "application/json"}
         response = requests.post(event_url, json=request_body, headers=headers)
         response.raise_for_status()
+        json = response.json()
+
+        json_errors = json.get("errors")
+        if json_errors:
+            self.logger.warn("events emitted with errors:")
+            for error in json_errors:
+                self.logger.warn(error)
 
     def _resolve(
         self, flag_name: FlagName, context: Dict[str, FieldType]
@@ -191,6 +216,7 @@ class Confidence:
         resolve_url = f"{self._api_endpoint}/flags:resolve"
         response = requests.post(resolve_url, json=request_body)
         if response.status_code == 404:
+            self.logger.error(f"Flag {flag_name} not found")
             raise FlagNotFoundError()
 
         response.raise_for_status()
@@ -201,6 +227,7 @@ class Confidence:
         token = response_body["resolveToken"]
 
         if len(resolved_flags) == 0:
+            self.logger.info(f"Flag {flag_name} not found")
             return ResolveResult(None, None, token)
 
         resolved_flag = resolved_flags[0]
@@ -214,6 +241,7 @@ class Confidence:
         result: ResolveResult,
         value_path: Optional[str],
         value_type: Type[FieldType],
+        logger: logging.Logger,
     ) -> FieldType:
         value: FieldType = result.value
 
@@ -221,9 +249,13 @@ class Confidence:
             keys = value_path.split(".")
             for key in keys:
                 if not isinstance(value, dict):
+                    logger.debug(f"Value {value} is not a dict. Returning None.")
                     raise ParseError()
 
                 if key not in value:
+                    logger.debug(
+                        f"Key {key} not found in value {value}. Returning None."
+                    )
                     raise ParseError()
 
                 value = value.get(key)
@@ -233,6 +265,9 @@ class Confidence:
             return None
 
         if not Confidence.type_matches(value, value_type):
+            logger.debug(
+                f"Type of value {value} did not match expected type {value_type}."
+            )
             raise TypeMismatchError("type of value did not match excepted type")
 
         return value

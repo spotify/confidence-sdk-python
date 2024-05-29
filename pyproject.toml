@@ -10,6 +10,9 @@ build-backend = "setuptools.build_meta"
 write_to = "confidence/_version.py"
 local_scheme = "no-local-version"
 
+[tool.setuptools]
+packages = {find = {exclude = ["demo"]}}
+
 [project]
 name = "spotify_confidence_sdk"
 dynamic = ["version"]

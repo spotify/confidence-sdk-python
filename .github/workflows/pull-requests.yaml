@@ -71,16 +71,16 @@ jobs:
           .
 
       - name: Run black formatter check
-        run: black --check sdk
+        run: black --check confidence
 
       - name: Run flake8 formatter check
-        run: flake8 sdk
+        run: flake8 confidence
  
       - name: Run type linter check
-        run: mypy sdk
+        run: mypy confidence
 
       - name: Run type linter check
-        run: mypy sdk
+        run: mypy confidence
 
       - name: Run tests with pytest
         run: pytest

@@ -1,7 +1,7 @@
 import asyncio
 import uuid
 
-from confidence-openfeature-provider import Confidence
+from confidence.confidence import Confidence
 
 
 async def get_flag():
@@ -10,7 +10,7 @@ async def get_flag():
     uuid_string = str(random_uuid)
     confidence = root.with_context({"targeting_key": uuid_string})
     await confidence.with_context({"app": "python"}).track_async("navigate", {})
-    
+
     value = confidence.resolve_string_details("hawkflag.color", "False")
     print(f"Flag value: {value}")
 

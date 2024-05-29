@@ -12,12 +12,12 @@ and get familiar with the concepts.
 #### pip install
 <!---x-release-please-start-version-->
 ```python
-pip install spotify-confidence-sdk==0.1.4
+pip install spotify-confidence-sdk==0.2.1
 ```
 
 #### requirements.txt
 ```python
-spotify-confidence-sdk==0.1.4
+spotify-confidence-sdk==0.2.1
 
 pip install -r requirements.txt
 ```
@@ -40,8 +40,8 @@ The flag's schema is validated against the requested data type, and if it doesn'
 
 ```python
 
-from sdk.confidence import Region
-from sdk.openfeature_provider import ConfidenceOpenFeatureProvider
+from confidence.confidence import Region
+from confidence.openfeature_provider import ConfidenceOpenFeatureProvider
 from openfeature.api import EvaluationContext
 from openfeature import api
 

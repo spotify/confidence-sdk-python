@@ -4,7 +4,7 @@ import sys
 import typing
 from dataclasses import dataclass, field
 
-from sdk.errors import ErrorCode
+from confidence.errors import ErrorCode
 
 if sys.version_info >= (3, 11):
     # re-export needed for type checking

@@ -1,6 +1,6 @@
 import unittest
 
-from sdk.names import FlagName, VariantName
+from confidence.names import FlagName, VariantName
 
 
 class NamesTest(unittest.TestCase):

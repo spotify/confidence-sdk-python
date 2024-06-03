@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.3](https://github.com/spotify/confidence-openfeature-provider-python/compare/v0.2.2...v0.2.3) (2024-06-03)
+
+
+### 🐛 Bug Fixes
+
+* revert having run in the track event ([#56](https://github.com/spotify/confidence-openfeature-provider-python/issues/56)) ([f87032a](https://github.com/spotify/confidence-openfeature-provider-python/commit/f87032a9b7f5d927f0e38fdb78d38fb52acc4bb2))
+
 ## [0.2.2](https://github.com/spotify/confidence-openfeature-provider-python/compare/v0.2.1...v0.2.2) (2024-06-03)
 
 

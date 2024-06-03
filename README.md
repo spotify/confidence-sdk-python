@@ -7,11 +7,11 @@ This repo contains the [Confidence](https://confidence.spotify.com/) SDK for pyt
 #### pip install
 <!---x-release-please-start-version-->
 ```python
-pip install spotify-confidence-sdk==0.2.2
+pip install spotify-confidence-sdk==0.2.3
 
 #### requirements.txt
 ```python
-spotify-confidence-sdk==0.2.2
+spotify-confidence-sdk==0.2.3
 
 pip install -r requirements.txt
 ```

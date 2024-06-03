@@ -170,12 +170,15 @@ class Confidence:
 
     # type-arg: ignore
     def track(self, event_name: str, data: Dict[str, FieldType]) -> None:
+        self._send_event_internal(event_name, data)
+
+    def track_async(self, event_name: str, data: Dict[str, FieldType]) -> None:
         asyncio.create_task(self._send_event(event_name, data))
 
-    async def track_async(self, event_name: str, data: Dict[str, FieldType]) -> None:
-        await self._send_event(event_name, data)
-
     async def _send_event(self, event_name: str, data: Dict[str, FieldType]) -> None:
+        self._send_event_internal(event_name, data)
+
+    def _send_event_internal(self, event_name: str, data: Dict[str, FieldType]) -> None:
         current_time = datetime.utcnow().isoformat() + "Z"
         request_body = {
             "clientSecret": self._client_secret,

@@ -170,7 +170,7 @@ class Confidence:
 
     # type-arg: ignore
     def track(self, event_name: str, data: Dict[str, FieldType]) -> None:
-        asyncio.create_task(self._send_event(event_name, data))
+        asyncio.run(self._send_event(event_name, data))
 
     async def track_async(self, event_name: str, data: Dict[str, FieldType]) -> None:
         await self._send_event(event_name, data)

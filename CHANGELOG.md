@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.2](https://github.com/spotify/confidence-openfeature-provider-python/compare/v0.2.1...v0.2.2) (2024-06-03)
+
+
+### 🐛 Bug Fixes
+
+* Add readme for confidence flag api ([#53](https://github.com/spotify/confidence-openfeature-provider-python/issues/53)) ([f840603](https://github.com/spotify/confidence-openfeature-provider-python/commit/f840603616953b1b3d551b950aa2a689023d99bf))
+* run async io task in the background ([#55](https://github.com/spotify/confidence-openfeature-provider-python/issues/55)) ([e7c87bd](https://github.com/spotify/confidence-openfeature-provider-python/commit/e7c87bdfb72e5f1b62ae5cbcf1d813eb965b7797))
+
 ## [0.2.1](https://github.com/spotify/confidence-openfeature-provider-python/compare/v0.2.0...v0.2.1) (2024-05-29)
 
 

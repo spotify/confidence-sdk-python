@@ -196,14 +196,14 @@ class Confidence:
         event_url = "https://events.confidence.dev/v1/events:publish"
         headers = {"Content-Type": "application/json", "Accept": "application/json"}
         response = requests.post(event_url, json=request_body, headers=headers)
-        response.raise_for_status()
-        json = response.json()
+        if response.status_code == 200:
+            json = response.json()
 
-        json_errors = json.get("errors")
-        if json_errors:
-            self.logger.warn("events emitted with errors:")
-            for error in json_errors:
-                self.logger.warn(error)
+            json_errors = json.get("errors")
+            if json_errors:
+                self.logger.warn("events emitted with errors:")
+                for error in json_errors:
+                    self.logger.warn(error)
 
     def _resolve(
         self, flag_name: FlagName, context: Dict[str, FieldType]

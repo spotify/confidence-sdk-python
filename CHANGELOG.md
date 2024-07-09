@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.4](https://github.com/spotify/confidence-sdk-python/compare/v0.2.3...v0.2.4) (2024-07-09)
+
+
+### 🐛 Bug Fixes
+
+* Do not raise exception for track events ([#58](https://github.com/spotify/confidence-sdk-python/issues/58)) ([627d970](https://github.com/spotify/confidence-sdk-python/commit/627d9705973ea39cbe3321341659be3228dbf814))
+
 ## [0.2.3](https://github.com/spotify/confidence-sdk-python/compare/v0.2.2...v0.2.3) (2024-06-03)
 
 

@@ -204,6 +204,10 @@ class Confidence:
                 self.logger.warn("events emitted with errors:")
                 for error in json_errors:
                     self.logger.warn(error)
+        else:
+            self.logger.warn(
+                f"Track event {event_name} failed with status code {response.status_code} and reason: {response.reason}"
+            )
 
     def _resolve(
         self, flag_name: FlagName, context: Dict[str, FieldType]

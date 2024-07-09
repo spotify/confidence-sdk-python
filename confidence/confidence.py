@@ -206,7 +206,8 @@ class Confidence:
                     self.logger.warn(error)
         else:
             self.logger.warn(
-                f"Track event {event_name} failed with status code {response.status_code} and reason: {response.reason}"
+                f"Track event {event_name} failed with status code"
+                + f" {response.status_code} and reason: {response.reason}"
             )
 
     def _resolve(

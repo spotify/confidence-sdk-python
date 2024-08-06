@@ -1,10 +1,10 @@
-# Confidence SDK
+# Python Confidence SDK
 
-This repo contains the [Confidence](https://confidence.spotify.com/) SDK for python and the Confidence OpenFeature flag provider.
+Python library for [Confidence](https://confidence.spotify.com/).
 
-## Adding the dependency
+## Install
 
-#### pip install
+### pip install
 <!---x-release-please-start-version-->
 ```python
 pip install spotify-confidence-sdk==0.2.4
@@ -17,31 +17,39 @@ pip install -r requirements.txt
 ```
 <!---x-release-please-end-->
 
-### Creating and using the flag provider
+## Usage
 
-Below is an example for how to initialize the Confidence SDK, and then resolve
-a flag with a boolean attribute. The SDK is configured with an api key, which will authorize the resolving requests. 
+### Resolving flags
 
-The flag will be applied immediately, meaning that Confidence will count the targeted user as having received the treatment. 
-
-You can retrieve attributes on the flag variant using property dot notation, meaning `test-flag.boolean-key` will retrieve
-the attribute `boolean-key` on the flag `test-flag`. 
-
-You can also use only the flag name `test-flag` and retrieve all values as a map with `resolve_object_details()`. 
-
-The flag's schema is validated against the requested data type, and if it doesn't match it will fall back to the default value.
+Flag values are evaluated remotely and returned to the application:
 
 ```python
-
 from confidence.confidence import Confidence
-from confidence.confidence import Region
 
-confidence = Confidence("API_KEY")
-# to send an event
-confidence.with_context({"app": "python"}).track("event_name", {})
-#to resolve a flag
+root_confidence = Confidence("CLIENT_TOKEN")
+confidence = root_confidence.with_context({"user_id": "some-user-id"})
 default_value = False
-flag_value = confidence.resolve_boolean_details("test-flag.boolean-key", default_value)
-print(flag_value)
+flag_details = confidence.resolve_boolean_details("flag-name.property-name", default_value)
+print(flag_details)
 
 ```
+
+### Tracking events
+
+Events are emitted to the Confidence backend:
+
+```python
+confidence.track("event_name", {
+	"field_1": False
+})
+```
+
+## OpenFeature
+
+The library includes a `Provider` for
+the [OpenFeature Python SDK](https://openfeature.dev/docs/tutorials/getting-started/python), that can be
+used to resolve feature flag values from the Confidence platform.
+
+To learn more about the basic concepts (flags, targeting key, evaluation contexts),
+the [OpenFeature reference documentation](https://openfeature.dev/docs/reference/intro) can be
+useful.

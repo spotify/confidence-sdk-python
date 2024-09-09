@@ -73,7 +73,10 @@ class Confidence:
 
     def with_context(self, context: Dict[str, FieldType]) -> "Confidence":
         new_confidence = Confidence(
-            self._client_secret, self._region, self._apply_on_resolve
+            self._client_secret,
+            self._region,
+            self._apply_on_resolve,
+            self._custom_resolve_url,
         )
         new_confidence.context = {**self.context, **context}
         return new_confidence
@@ -83,6 +86,7 @@ class Confidence:
         client_secret: str,
         region: Region = Region.GLOBAL,
         apply_on_resolve: bool = True,
+        custom_resolve_url: Optional[str] = None,
         logger: logging.Logger = logging.getLogger("confidence_logger"),
     ):
         self._client_secret = client_secret
@@ -91,6 +95,7 @@ class Confidence:
         self._apply_on_resolve = apply_on_resolve
         self.logger = logger
         self._setup_logger(logger)
+        self._custom_resolve_url = custom_resolve_url
 
     def resolve_boolean_details(
         self, flag_key: str, default_value: bool
@@ -220,8 +225,10 @@ class Confidence:
             "flags": [str(flag_name)],
             "sdk": {"id": "SDK_ID_PYTHON_CONFIDENCE", "version": __version__},
         }
-
         resolve_url = f"{self._api_endpoint}/flags:resolve"
+        if self._custom_resolve_url is not None:
+            resolve_url = self._custom_resolve_url
+
         response = requests.post(resolve_url, json=request_body)
         if response.status_code == 404:
             self.logger.error(f"Flag {flag_name} not found")

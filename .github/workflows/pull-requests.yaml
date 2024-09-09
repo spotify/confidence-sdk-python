@@ -79,8 +79,5 @@ jobs:
       - name: Run type linter check
         run: mypy confidence
 
-      - name: Run type linter check
-        run: mypy confidence
-
       - name: Run tests with pytest
         run: pytest

@@ -85,6 +85,28 @@ class TestMyProvider(unittest.TestCase):
                 EXPECTED_REQUEST_PAYLOAD,
             )
 
+    def test_resolve_successful_custom_url(self):
+        self.provider = ConfidenceOpenFeatureProvider(Confidence(client_secret="test", custom_resolve_url="https://custom_url"))
+        ctx = EvaluationContext(
+            targeting_key="boop",
+        )
+        with requests_mock.Mocker() as mock:
+            mock.post(
+                "https://custom_url",
+                json=SUCCESSFUL_FLAG_RESOLVE,
+            )
+            result = self.provider.resolve_object_details(
+                flag_key="python-flag-1.struct-key",
+                default_value={"key": "value"},
+                evaluation_context=ctx,
+            )
+
+            self.assertEqual(result.reason, Reason.TARGETING_MATCH)
+            self.assertEqual(
+                result.flag_metadata["flag_key"], "python-flag-1.struct-key"
+            )
+            self.assertEqual(result.value, {"string-key": "inner-string"})
+
     def test_resolve_response_object_details(self):
         ctx = EvaluationContext(
             targeting_key="boop",

@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.2.5](https://github.com/spotify/confidence-sdk-python/compare/v0.2.4...v0.2.5) (2024-09-09)
+
+
+### ✨ New Features
+
+* Sidecar - Let users to add custom resolve url for confidence object ([#62](https://github.com/spotify/confidence-sdk-python/issues/62)) ([f6244dd](https://github.com/spotify/confidence-sdk-python/commit/f6244ddf37b13ee4e6f0e728d9a85505c800f257))
+
+
+### 📚 Documentation
+
+* Update the README ([#60](https://github.com/spotify/confidence-sdk-python/issues/60)) ([aaa4bbc](https://github.com/spotify/confidence-sdk-python/commit/aaa4bbceebf60e415098651973b22c42e8cbbb97))
+
 ## [0.2.4](https://github.com/spotify/confidence-sdk-python/compare/v0.2.3...v0.2.4) (2024-07-09)
 
 

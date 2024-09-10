@@ -92,7 +92,7 @@ class TestMyProvider(unittest.TestCase):
         )
         with requests_mock.Mocker() as mock:
             mock.post(
-                "https://custom_url",
+                "https://custom_url/v1/flags:resolve",
                 json=SUCCESSFUL_FLAG_RESOLVE,
             )
             result = self.provider.resolve_object_details(

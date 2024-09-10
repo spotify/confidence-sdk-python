@@ -76,7 +76,7 @@ class Confidence:
             self._client_secret,
             self._region,
             self._apply_on_resolve,
-            self._custom_base_resolve_url,
+            self._custom_resolve_base_url,
         )
         new_confidence.context = {**self.context, **context}
         return new_confidence
@@ -95,7 +95,7 @@ class Confidence:
         self._apply_on_resolve = apply_on_resolve
         self.logger = logger
         self._setup_logger(logger)
-        self._custom_base_resolve_url = custom_base_resolve_url
+        self._custom_resolve_base_url = custom_base_resolve_url
 
     def resolve_boolean_details(
         self, flag_key: str, default_value: bool
@@ -226,8 +226,8 @@ class Confidence:
             "sdk": {"id": "SDK_ID_PYTHON_CONFIDENCE", "version": __version__},
         }
         base_url = self._api_endpoint
-        if self._custom_base_resolve_url is not None:
-            base_url = self._custom_base_resolve_url
+        if self._custom_resolve_base_url is not None:
+            base_url = self._custom_resolve_base_url
 
         resolve_url = f"{base_url}/v1/flags:resolve"
         response = requests.post(resolve_url, json=request_body)

@@ -86,7 +86,7 @@ class Confidence:
         client_secret: str,
         region: Region = Region.GLOBAL,
         apply_on_resolve: bool = True,
-        custom_base_resolve_url: Optional[str] = None,
+        custom_resolve_base_url: Optional[str] = None,
         logger: logging.Logger = logging.getLogger("confidence_logger"),
     ):
         self._client_secret = client_secret
@@ -95,7 +95,7 @@ class Confidence:
         self._apply_on_resolve = apply_on_resolve
         self.logger = logger
         self._setup_logger(logger)
-        self._custom_resolve_base_url = custom_base_resolve_url
+        self._custom_resolve_base_url = custom_resolve_base_url
 
     def resolve_boolean_details(
         self, flag_key: str, default_value: bool

@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.6](https://github.com/spotify/confidence-sdk-python/compare/v0.2.5...v0.2.6) (2024-09-11)
+
+
+### ✨ New Features
+
+* Update base url ([#63](https://github.com/spotify/confidence-sdk-python/issues/63)) ([cc97e9e](https://github.com/spotify/confidence-sdk-python/commit/cc97e9e6162ed945198901a448c64421c66c8f89))
+
 ## [0.2.5](https://github.com/spotify/confidence-sdk-python/compare/v0.2.4...v0.2.5) (2024-09-09)
 
 

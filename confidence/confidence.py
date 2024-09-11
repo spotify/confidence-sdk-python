@@ -26,9 +26,9 @@ from confidence.errors import (
 from .flag_types import FlagResolutionDetails, Reason
 from .names import FlagName, VariantName
 
-EU_RESOLVE_API_ENDPOINT = "https://resolver.eu.confidence.dev/v1"
-US_RESOLVE_API_ENDPOINT = "https://resolver.us.confidence.dev/v1"
-GLOBAL_RESOLVE_API_ENDPOINT = "https://resolver.confidence.dev/v1"
+EU_RESOLVE_API_ENDPOINT = "https://resolver.eu.confidence.dev"
+US_RESOLVE_API_ENDPOINT = "https://resolver.us.confidence.dev"
+GLOBAL_RESOLVE_API_ENDPOINT = "https://resolver.confidence.dev"
 
 Primitive = Union[str, int, float, bool, None]
 FieldType = Union[Primitive, List[Primitive], List["Object"], "Object"]
@@ -76,7 +76,7 @@ class Confidence:
             self._client_secret,
             self._region,
             self._apply_on_resolve,
-            self._custom_resolve_url,
+            self._custom_resolve_base_url,
         )
         new_confidence.context = {**self.context, **context}
         return new_confidence
@@ -86,7 +86,7 @@ class Confidence:
         client_secret: str,
         region: Region = Region.GLOBAL,
         apply_on_resolve: bool = True,
-        custom_resolve_url: Optional[str] = None,
+        custom_resolve_base_url: Optional[str] = None,
         logger: logging.Logger = logging.getLogger("confidence_logger"),
     ):
         self._client_secret = client_secret
@@ -95,7 +95,7 @@ class Confidence:
         self._apply_on_resolve = apply_on_resolve
         self.logger = logger
         self._setup_logger(logger)
-        self._custom_resolve_url = custom_resolve_url
+        self._custom_resolve_base_url = custom_resolve_base_url
 
     def resolve_boolean_details(
         self, flag_key: str, default_value: bool
@@ -225,10 +225,11 @@ class Confidence:
             "flags": [str(flag_name)],
             "sdk": {"id": "SDK_ID_PYTHON_CONFIDENCE", "version": __version__},
         }
-        resolve_url = f"{self._api_endpoint}/flags:resolve"
-        if self._custom_resolve_url is not None:
-            resolve_url = self._custom_resolve_url
+        base_url = self._api_endpoint
+        if self._custom_resolve_base_url is not None:
+            base_url = self._custom_resolve_base_url
 
+        resolve_url = f"{base_url}/v1/flags:resolve"
         response = requests.post(resolve_url, json=request_body)
         if response.status_code == 404:
             self.logger.error(f"Flag {flag_name} not found")

@@ -86,13 +86,13 @@ class TestMyProvider(unittest.TestCase):
             )
 
     def test_resolve_successful_custom_url(self):
-        self.provider = ConfidenceOpenFeatureProvider(Confidence(client_secret="test", custom_resolve_url="https://custom_url"))
+        self.provider = ConfidenceOpenFeatureProvider(Confidence(client_secret="test", custom_resolve_base_url="https://custom_url"))
         ctx = EvaluationContext(
             targeting_key="boop",
         )
         with requests_mock.Mocker() as mock:
             mock.post(
-                "https://custom_url",
+                "https://custom_url/v1/flags:resolve",
                 json=SUCCESSFUL_FLAG_RESOLVE,
             )
             result = self.provider.resolve_object_details(

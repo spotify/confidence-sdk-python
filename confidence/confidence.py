@@ -330,9 +330,7 @@ class Confidence:
             base_url = self._custom_resolve_base_url
 
         resolve_url = f"{base_url}/v1/flags:resolve"
-        # response = await self.async_client.post(resolve_url, json=request_body)
-        async with httpx.AsyncClient() as client:
-            response = await client.post(resolve_url, json=request_body)
+        response = await self.async_client.post(resolve_url, json=request_body)
         if response.status_code == 404:
             self.logger.error(f"Flag {flag_name} not found")
             raise FlagNotFoundError()

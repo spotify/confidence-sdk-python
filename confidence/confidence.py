@@ -15,6 +15,7 @@ from typing import (
 )
 
 import requests
+import httpx
 from typing_extensions import TypeGuard
 
 from confidence import __version__
@@ -94,6 +95,7 @@ class Confidence:
         self._api_endpoint = region.endpoint()
         self._apply_on_resolve = apply_on_resolve
         self.logger = logger
+        self.async_client = httpx.AsyncClient()
         self._setup_logger(logger)
         self._custom_resolve_base_url = custom_resolve_base_url
 
@@ -102,25 +104,50 @@ class Confidence:
     ) -> FlagResolutionDetails[bool]:
         return self._evaluate(flag_key, bool, default_value, self.context)
 
+    async def resolve_boolean_details_async(
+        self, flag_key: str, default_value: bool
+    ) -> FlagResolutionDetails[bool]:
+        return await self._evaluate_async(flag_key, bool, default_value, self.context)
+
     def resolve_float_details(
         self, flag_key: str, default_value: float
     ) -> FlagResolutionDetails[float]:
         return self._evaluate(flag_key, float, default_value, self.context)
+
+    async def resolve_float_details_async(
+        self, flag_key: str, default_value: float
+    ) -> FlagResolutionDetails[float]:
+        return await self._evaluate_async(flag_key, float, default_value, self.context)
 
     def resolve_integer_details(
         self, flag_key: str, default_value: int
     ) -> FlagResolutionDetails[int]:
         return self._evaluate(flag_key, int, default_value, self.context)
 
+    async def resolve_integer_details_async(
+        self, flag_key: str, default_value: int
+    ) -> FlagResolutionDetails[int]:
+        return await self._evaluate_async(flag_key, int, default_value, self.context)
+
     def resolve_string_details(
         self, flag_key: str, default_value: str
     ) -> FlagResolutionDetails[str]:
         return self._evaluate(flag_key, str, default_value, self.context)
 
+    async def resolve_string_details_async(
+        self, flag_key: str, default_value: str
+    ) -> FlagResolutionDetails[str]:
+        return self._evaluate_async(flag_key, str, default_value, self.context)
+
     def resolve_object_details(
         self, flag_key: str, default_value: Union[Object, List[Primitive]]
     ) -> FlagResolutionDetails[Union[Object, List[Primitive]]]:
         return self._evaluate(flag_key, Object, default_value, self.context)
+
+    async def resolve_object_details_async(
+        self, flag_key: str, default_value: Union[Object, List[Primitive]]
+    ) -> FlagResolutionDetails[Union[Object, List[Primitive]]]:
+        return await self._evaluate_async(flag_key, Object, default_value, self.context)
 
     def _setup_logger(self, logger: logging.Logger) -> None:
         if logger is not None:
@@ -150,6 +177,42 @@ class Confidence:
             flag_id = flag_key
             value_path = None
         result = self._resolve(FlagName(flag_id), context)
+        if result.variant is None or len(str(result.value)) == 0:
+            return FlagResolutionDetails(
+                value=default_value,
+                reason=Reason.DEFAULT,
+                flag_metadata={"flag_key": flag_key},
+            )
+
+        variant_name = VariantName.parse(result.variant)
+
+        value = self._select(result, value_path, value_type, self.logger)
+        if value is None:
+            self.logger.debug(
+                f"Flag {flag_key} resolved to None. Returning default value."
+            )
+            value = default_value
+
+        return FlagResolutionDetails(
+            value=value,
+            variant=variant_name.variant,
+            reason=Reason.TARGETING_MATCH,
+            flag_metadata={"flag_key": flag_key},
+        )
+
+    async def _evaluate_async(
+        self,
+        flag_key: str,
+        value_type: Type[FieldType],
+        default_value: FieldType,
+        context: Dict[str, FieldType],
+    ) -> FlagResolutionDetails[Any]:
+        if "." in flag_key:
+            flag_id, value_path = flag_key.split(".", 1)
+        else:
+            flag_id = flag_key
+            value_path = None
+        result = await self._resolve_async(FlagName(flag_id), context)
         if result.variant is None or len(str(result.value)) == 0:
             return FlagResolutionDetails(
                 value=default_value,
@@ -231,6 +294,45 @@ class Confidence:
 
         resolve_url = f"{base_url}/v1/flags:resolve"
         response = requests.post(resolve_url, json=request_body)
+        if response.status_code == 404:
+            self.logger.error(f"Flag {flag_name} not found")
+            raise FlagNotFoundError()
+
+        response.raise_for_status()
+
+        response_body = response.json()
+
+        resolved_flags = response_body["resolvedFlags"]
+        token = response_body["resolveToken"]
+
+        if len(resolved_flags) == 0:
+            self.logger.info(f"Flag {flag_name} not found")
+            return ResolveResult(None, None, token)
+
+        resolved_flag = resolved_flags[0]
+        variant = resolved_flag.get("variant")
+        return ResolveResult(
+            resolved_flag.get("value"), None if variant == "" else variant, token
+        )
+
+    async def _resolve_async(
+        self, flag_name: FlagName, context: Dict[str, FieldType]
+    ) -> ResolveResult:
+        request_body = {
+            "clientSecret": self._client_secret,
+            "evaluationContext": context,
+            "apply": self._apply_on_resolve,
+            "flags": [str(flag_name)],
+            "sdk": {"id": "SDK_ID_PYTHON_CONFIDENCE", "version": __version__},
+        }
+        base_url = self._api_endpoint
+        if self._custom_resolve_base_url is not None:
+            base_url = self._custom_resolve_base_url
+
+        resolve_url = f"{base_url}/v1/flags:resolve"
+        # response = await self.async_client.post(resolve_url, json=request_body)
+        async with httpx.AsyncClient() as client:
+            response = await client.post(resolve_url, json=request_body)
         if response.status_code == 404:
             self.logger.error(f"Flag {flag_name} not found")
             raise FlagNotFoundError()

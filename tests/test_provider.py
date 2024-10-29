@@ -1,6 +1,7 @@
 import requests_mock
 import unittest
 import json
+import httpx
 
 from openfeature.flag_evaluation import Reason
 
@@ -11,7 +12,7 @@ from confidence.openfeature_provider import EvaluationContext
 from confidence.openfeature_provider import Region
 
 
-class TestMyProvider(unittest.TestCase):
+class TestMyProvider(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         self.provider = ConfidenceOpenFeatureProvider(Confidence(client_secret="test"))
 
@@ -86,7 +87,11 @@ class TestMyProvider(unittest.TestCase):
             )
 
     def test_resolve_successful_custom_url(self):
-        self.provider = ConfidenceOpenFeatureProvider(Confidence(client_secret="test", custom_resolve_base_url="https://custom_url"))
+        self.provider = ConfidenceOpenFeatureProvider(
+            Confidence(
+                client_secret="test", custom_resolve_base_url="https://custom_url"
+            )
+        )
         ctx = EvaluationContext(
             targeting_key="boop",
         )
@@ -135,6 +140,39 @@ class TestMyProvider(unittest.TestCase):
                 },
             )
 
+    async def test_resolve_response_object_details_async(self):
+        ctx = EvaluationContext(
+            targeting_key="boop",
+        )
+
+        mock_response = httpx.Response(
+            status_code=200,
+            json=SUCCESSFUL_FLAG_RESOLVE,
+            request=httpx.Request(
+                "POST", "https://resolver.confidence.dev/v1/flags:resolve"
+            ),
+        )
+
+        with unittest.mock.patch("httpx.AsyncClient.post", return_value=mock_response):
+            result = await self.provider.resolve_object_details_async(
+                flag_key="python-flag-1",
+                default_value={"key": "value"},
+                evaluation_context=ctx,
+            )
+
+            self.assertEqual(result.reason, Reason.TARGETING_MATCH)
+            self.assertEqual(result.flag_metadata["flag_key"], "python-flag-1")
+            self.assertEqual(
+                result.value,
+                {
+                    "double-key": 42.42,
+                    "enabled": True,
+                    "int-key": 42,
+                    "string-key": "outer-string",
+                    "struct-key": {"string-key": "inner-string"},
+                },
+            )
+
     def test_resolve_struct_details(self):
         ctx = EvaluationContext(
             targeting_key="boop",
@@ -156,6 +194,30 @@ class TestMyProvider(unittest.TestCase):
             )
             self.assertEqual(result.value, {"string-key": "inner-string"})
 
+    async def test_resolve_struct_details_async(self):
+        ctx = EvaluationContext(
+            targeting_key="boop",
+        )
+
+        mock_response = httpx.Response(
+            status_code=200,
+            json=SUCCESSFUL_FLAG_RESOLVE,
+            request=httpx.Request(
+                "POST", "https://resolver.confidence.dev/v1/flags:resolve"
+            ),
+        )
+
+        with unittest.mock.patch("httpx.AsyncClient.post", return_value=mock_response):
+            result = await self.provider.resolve_object_details_async(
+                flag_key="python-flag-1.struct-key",
+                default_value={"key": "value"},
+                evaluation_context=ctx,
+            )
+
+            assert result.reason == Reason.TARGETING_MATCH
+            assert result.flag_metadata["flag_key"] == "python-flag-1.struct-key"
+            assert result.value == {"string-key": "inner-string"}
+
     def test_resolve_integer_details(self):
         ctx = EvaluationContext(
             targeting_key="boop",
@@ -166,6 +228,30 @@ class TestMyProvider(unittest.TestCase):
                 json=SUCCESSFUL_FLAG_RESOLVE,
             )
             result = self.provider.resolve_integer_details(
+                flag_key="python-flag-1.int-key",
+                default_value=-1,
+                evaluation_context=ctx,
+            )
+
+            self.assertEqual(result.reason, Reason.TARGETING_MATCH)
+            self.assertEqual(result.flag_metadata["flag_key"], "python-flag-1.int-key")
+            self.assertEqual(result.value, 42)
+
+    async def test_resolve_integer_details_async(self):
+        ctx = EvaluationContext(
+            targeting_key="boop",
+        )
+
+        mock_response = httpx.Response(
+            status_code=200,
+            json=SUCCESSFUL_FLAG_RESOLVE,
+            request=httpx.Request(
+                "POST", "https://resolver.confidence.dev/v1/flags:resolve"
+            ),
+        )
+
+        with unittest.mock.patch("httpx.AsyncClient.post", return_value=mock_response):
+            result = await self.provider.resolve_integer_details_async(
                 flag_key="python-flag-1.int-key",
                 default_value=-1,
                 evaluation_context=ctx,
@@ -194,6 +280,30 @@ class TestMyProvider(unittest.TestCase):
             self.assertEqual(result.flag_metadata["flag_key"], "python-flag-1.enabled")
             self.assertEqual(result.value, True)
 
+    async def test_resolve_boolean_details_async(self):
+        ctx = EvaluationContext(
+            targeting_key="boop",
+        )
+
+        mock_response = httpx.Response(
+            status_code=200,
+            json=SUCCESSFUL_FLAG_RESOLVE,
+            request=httpx.Request(
+                "POST", "https://resolver.confidence.dev/v1/flags:resolve"
+            ),
+        )
+
+        with unittest.mock.patch("httpx.AsyncClient.post", return_value=mock_response):
+            result = await self.provider.resolve_boolean_details_async(
+                flag_key="python-flag-1.enabled",
+                default_value=False,
+                evaluation_context=ctx,
+            )
+
+            self.assertEqual(result.reason, Reason.TARGETING_MATCH)
+            self.assertEqual(result.flag_metadata["flag_key"], "python-flag-1.enabled")
+            self.assertEqual(result.value, True)
+
     def test_resolve_float_details(self):
         ctx = EvaluationContext(
             targeting_key="boop",
@@ -204,6 +314,32 @@ class TestMyProvider(unittest.TestCase):
                 json=SUCCESSFUL_FLAG_RESOLVE,
             )
             result = self.provider.resolve_float_details(
+                flag_key="python-flag-1.double-key",
+                default_value=0.01,
+                evaluation_context=ctx,
+            )
+
+            self.assertEqual(result.reason, Reason.TARGETING_MATCH)
+            self.assertEqual(
+                result.flag_metadata["flag_key"], "python-flag-1.double-key"
+            )
+            self.assertEqual(result.value, 42.42)
+
+    async def test_resolve_float_details_async(self):
+        ctx = EvaluationContext(
+            targeting_key="boop",
+        )
+
+        mock_response = httpx.Response(
+            status_code=200,
+            json=SUCCESSFUL_FLAG_RESOLVE,
+            request=httpx.Request(
+                "POST", "https://resolver.confidence.dev/v1/flags:resolve"
+            ),
+        )
+
+        with unittest.mock.patch("httpx.AsyncClient.post", return_value=mock_response):
+            result = await self.provider.resolve_float_details_async(
                 flag_key="python-flag-1.double-key",
                 default_value=0.01,
                 evaluation_context=ctx,

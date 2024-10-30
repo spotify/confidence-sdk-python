@@ -1,5 +1,6 @@
 import requests_mock
 import unittest
+from unittest.mock import patch
 import json
 import httpx
 
@@ -153,7 +154,7 @@ class TestMyProvider(unittest.IsolatedAsyncioTestCase):
             ),
         )
 
-        with unittest.mock.patch("httpx.AsyncClient.post", return_value=mock_response):
+        with patch("httpx.AsyncClient.post", return_value=mock_response):
             result = await self.provider.resolve_object_details_async(
                 flag_key="python-flag-1",
                 default_value={"key": "value"},
@@ -207,7 +208,7 @@ class TestMyProvider(unittest.IsolatedAsyncioTestCase):
             ),
         )
 
-        with unittest.mock.patch("httpx.AsyncClient.post", return_value=mock_response):
+        with patch("httpx.AsyncClient.post", return_value=mock_response):
             result = await self.provider.resolve_object_details_async(
                 flag_key="python-flag-1.struct-key",
                 default_value={"key": "value"},
@@ -250,7 +251,7 @@ class TestMyProvider(unittest.IsolatedAsyncioTestCase):
             ),
         )
 
-        with unittest.mock.patch("httpx.AsyncClient.post", return_value=mock_response):
+        with patch("httpx.AsyncClient.post", return_value=mock_response):
             result = await self.provider.resolve_integer_details_async(
                 flag_key="python-flag-1.int-key",
                 default_value=-1,
@@ -293,7 +294,7 @@ class TestMyProvider(unittest.IsolatedAsyncioTestCase):
             ),
         )
 
-        with unittest.mock.patch("httpx.AsyncClient.post", return_value=mock_response):
+        with patch("httpx.AsyncClient.post", return_value=mock_response):
             result = await self.provider.resolve_boolean_details_async(
                 flag_key="python-flag-1.enabled",
                 default_value=False,
@@ -338,7 +339,7 @@ class TestMyProvider(unittest.IsolatedAsyncioTestCase):
             ),
         )
 
-        with unittest.mock.patch("httpx.AsyncClient.post", return_value=mock_response):
+        with patch("httpx.AsyncClient.post", return_value=mock_response):
             result = await self.provider.resolve_float_details_async(
                 flag_key="python-flag-1.double-key",
                 default_value=0.01,

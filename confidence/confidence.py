@@ -78,6 +78,7 @@ class Confidence:
             self._region,
             self._apply_on_resolve,
             self._custom_resolve_base_url,
+            async_client=self.async_client,
         )
         new_confidence.context = {**self.context, **context}
         return new_confidence
@@ -89,13 +90,14 @@ class Confidence:
         apply_on_resolve: bool = True,
         custom_resolve_base_url: Optional[str] = None,
         logger: logging.Logger = logging.getLogger("confidence_logger"),
+        async_client: httpx.AsyncClient = httpx.AsyncClient(),
     ):
         self._client_secret = client_secret
         self._region = region
         self._api_endpoint = region.endpoint()
         self._apply_on_resolve = apply_on_resolve
         self.logger = logger
-        self.async_client = httpx.AsyncClient()
+        self.async_client = async_client
         self._setup_logger(logger)
         self._custom_resolve_base_url = custom_resolve_base_url
 

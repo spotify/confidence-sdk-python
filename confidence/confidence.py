@@ -139,7 +139,7 @@ class Confidence:
     async def resolve_string_details_async(
         self, flag_key: str, default_value: str
     ) -> FlagResolutionDetails[str]:
-        return self._evaluate_async(flag_key, str, default_value, self.context)
+        return await self._evaluate_async(flag_key, str, default_value, self.context)
 
     def resolve_object_details(
         self, flag_key: str, default_value: Union[Object, List[Primitive]]

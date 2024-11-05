@@ -166,19 +166,14 @@ class Confidence:
     # --- internals
     #
 
-    def _evaluate(
+    def _handle_evaluation_result(
         self,
+        result: ResolveResult,
         flag_key: str,
         value_type: Type[FieldType],
         default_value: FieldType,
-        context: Dict[str, FieldType],
+        value_path: Optional[str],
     ) -> FlagResolutionDetails[Any]:
-        if "." in flag_key:
-            flag_id, value_path = flag_key.split(".", 1)
-        else:
-            flag_id = flag_key
-            value_path = None
-        result = self._resolve(FlagName(flag_id), context)
         if result.variant is None or len(str(result.value)) == 0:
             return FlagResolutionDetails(
                 value=default_value,
@@ -202,6 +197,23 @@ class Confidence:
             flag_metadata={"flag_key": flag_key},
         )
 
+    def _evaluate(
+        self,
+        flag_key: str,
+        value_type: Type[FieldType],
+        default_value: FieldType,
+        context: Dict[str, FieldType],
+    ) -> FlagResolutionDetails[Any]:
+        if "." in flag_key:
+            flag_id, value_path = flag_key.split(".", 1)
+        else:
+            flag_id = flag_key
+            value_path = None
+        result = self._resolve(FlagName(flag_id), context)
+        return self._handle_evaluation_result(
+            result, flag_key, value_type, default_value, value_path
+        )
+
     async def _evaluate_async(
         self,
         flag_key: str,
@@ -215,27 +227,8 @@ class Confidence:
             flag_id = flag_key
             value_path = None
         result = await self._resolve_async(FlagName(flag_id), context)
-        if result.variant is None or len(str(result.value)) == 0:
-            return FlagResolutionDetails(
-                value=default_value,
-                reason=Reason.DEFAULT,
-                flag_metadata={"flag_key": flag_key},
-            )
-
-        variant_name = VariantName.parse(result.variant)
-
-        value = self._select(result, value_path, value_type, self.logger)
-        if value is None:
-            self.logger.debug(
-                f"Flag {flag_key} resolved to None. Returning default value."
-            )
-            value = default_value
-
-        return FlagResolutionDetails(
-            value=value,
-            variant=variant_name.variant,
-            reason=Reason.TARGETING_MATCH,
-            flag_metadata={"flag_key": flag_key},
+        return self._handle_evaluation_result(
+            result, flag_key, value_type, default_value, value_path
         )
 
     # type-arg: ignore
@@ -280,22 +273,9 @@ class Confidence:
                 + f" {response.status_code} and reason: {response.reason}"
             )
 
-    def _resolve(
-        self, flag_name: FlagName, context: Dict[str, FieldType]
+    def _handle_resolve_response(
+        self, response: requests.Response, flag_name: FlagName
     ) -> ResolveResult:
-        request_body = {
-            "clientSecret": self._client_secret,
-            "evaluationContext": context,
-            "apply": self._apply_on_resolve,
-            "flags": [str(flag_name)],
-            "sdk": {"id": "SDK_ID_PYTHON_CONFIDENCE", "version": __version__},
-        }
-        base_url = self._api_endpoint
-        if self._custom_resolve_base_url is not None:
-            base_url = self._custom_resolve_base_url
-
-        resolve_url = f"{base_url}/v1/flags:resolve"
-        response = requests.post(resolve_url, json=request_body)
         if response.status_code == 404:
             self.logger.error(f"Flag {flag_name} not found")
             raise FlagNotFoundError()
@@ -316,6 +296,24 @@ class Confidence:
         return ResolveResult(
             resolved_flag.get("value"), None if variant == "" else variant, token
         )
+
+    def _resolve(
+        self, flag_name: FlagName, context: Dict[str, FieldType]
+    ) -> ResolveResult:
+        request_body = {
+            "clientSecret": self._client_secret,
+            "evaluationContext": context,
+            "apply": self._apply_on_resolve,
+            "flags": [str(flag_name)],
+            "sdk": {"id": "SDK_ID_PYTHON_CONFIDENCE", "version": __version__},
+        }
+        base_url = self._api_endpoint
+        if self._custom_resolve_base_url is not None:
+            base_url = self._custom_resolve_base_url
+
+        resolve_url = f"{base_url}/v1/flags:resolve"
+        response = requests.post(resolve_url, json=request_body)
+        return self._handle_resolve_response(response, flag_name)
 
     async def _resolve_async(
         self, flag_name: FlagName, context: Dict[str, FieldType]
@@ -333,26 +331,7 @@ class Confidence:
 
         resolve_url = f"{base_url}/v1/flags:resolve"
         response = await self.async_client.post(resolve_url, json=request_body)
-        if response.status_code == 404:
-            self.logger.error(f"Flag {flag_name} not found")
-            raise FlagNotFoundError()
-
-        response.raise_for_status()
-
-        response_body = response.json()
-
-        resolved_flags = response_body["resolvedFlags"]
-        token = response_body["resolveToken"]
-
-        if len(resolved_flags) == 0:
-            self.logger.info(f"Flag {flag_name} not found")
-            return ResolveResult(None, None, token)
-
-        resolved_flag = resolved_flags[0]
-        variant = resolved_flag.get("variant")
-        return ResolveResult(
-            resolved_flag.get("value"), None if variant == "" else variant, token
-        )
+        return self._handle_resolve_response(response, flag_name)
 
     @staticmethod
     def _select(

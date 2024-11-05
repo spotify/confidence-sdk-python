@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.0.0](https://github.com/spotify/confidence-sdk-python/compare/v0.2.6...v1.0.0) (2024-11-05)
+
+
+### ✨ New Features
+
+* add support for async methods  ([#65](https://github.com/spotify/confidence-sdk-python/issues/65)) ([a06a18b](https://github.com/spotify/confidence-sdk-python/commit/a06a18bbe1a9686de07571c4b07eddd8c1a61117))
+
+
+### 🔄 Refactoring
+
+* code reuse and test split ([#67](https://github.com/spotify/confidence-sdk-python/issues/67)) ([5dd55cc](https://github.com/spotify/confidence-sdk-python/commit/5dd55cc7b9f26d1efb5e4efc3750aff4410f149a))
+
 ## [0.2.6](https://github.com/spotify/confidence-sdk-python/compare/v0.2.5...v0.2.6) (2024-09-11)
 
 

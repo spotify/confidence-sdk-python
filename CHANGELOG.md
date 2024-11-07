@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.0.1](https://github.com/spotify/confidence-sdk-python/compare/v1.0.0...v1.0.1) (2024-11-07)
+
+
+### 🧹 Chore
+
+* declare httpx in pyproject.toml ([#69](https://github.com/spotify/confidence-sdk-python/issues/69)) ([ed51321](https://github.com/spotify/confidence-sdk-python/commit/ed513214cdeef61cc8b01d5cd80860d44e206a56))
+
+
+### 📚 Documentation
+
+* minor readme formatting fix ([#68](https://github.com/spotify/confidence-sdk-python/issues/68)) ([7362a6f](https://github.com/spotify/confidence-sdk-python/commit/7362a6f92559082f4a00c92693468b3881af84f6))
+
 ## [1.0.0](https://github.com/spotify/confidence-sdk-python/compare/v0.2.6...v1.0.0) (2024-11-05)
 
 

@@ -77,6 +77,6 @@ jobs:
           .
 
       - name: Publish a Python distribution to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@a8b73a6d88e1c2ae7ee7bf90b8ebba800a10f203
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}

@@ -34,7 +34,15 @@ dependencies = [
 requires-python = ">=3.8"
 
 [project.optional-dependencies]
-dev = ["pytest", "black", "flake8", "requests_mock"]
+dev = [
+    "pytest==7.4.2",
+    "pytest-mock==3.11.1",
+    "black==23.9.1",
+    "flake8==6.1.0",
+    "requests_mock==1.11.0",
+    "setuptools_scm==8.0.4",
+    "mypy==1.5.1"
+]
 
 [project.urls]
 Homepage = "https://github.com/spotify/confidence-sdk-python"

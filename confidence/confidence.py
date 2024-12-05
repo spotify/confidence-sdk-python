@@ -152,6 +152,10 @@ class Confidence:
     ) -> FlagResolutionDetails[Union[Object, List[Primitive]]]:
         return await self._evaluate_async(flag_key, Object, default_value, self.context)
 
+    #
+    # --- internals
+    #
+
     def _setup_logger(self, logger: logging.Logger) -> None:
         if logger is not None:
             logger.setLevel(logging.DEBUG)
@@ -162,10 +166,6 @@ class Confidence:
                 ch = logging.StreamHandler()
                 ch.setFormatter(formatter)
                 logger.addHandler(ch)
-
-    #
-    # --- internals
-    #
 
     def _handle_evaluation_result(
         self,

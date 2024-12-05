@@ -176,9 +176,9 @@ class Confidence:
         value_path: Optional[str],
         context: Dict[str, FieldType],
     ) -> FlagResolutionDetails[Any]:
-        urlEncodedContext = requests.utils.quote(json.dumps((context)))
+        urlEncodedJsonContext = requests.utils.quote(json.dumps(context))
         self.logger.debug(
-            f"See resolves for '{flag_key}' in Confidence: https://app.confidence.spotify.com/flags/resolver-test?client-key={self._client_secret}&flag=flags/{flag_key}&context={urlEncodedContext}"  # noqa: E501
+            f"See resolves for '{flag_key}' in Confidence: https://app.confidence.spotify.com/flags/resolver-test?client-key={self._client_secret}&flag=flags/{flag_key}&context={urlEncodedJsonContext}"  # noqa: E501
         )
 
         if result.variant is None or len(str(result.value)) == 0:

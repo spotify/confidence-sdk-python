@@ -2,6 +2,7 @@ import asyncio
 import dataclasses
 from datetime import datetime
 from enum import Enum
+import json
 import logging
 from typing import (
     Any,
@@ -151,6 +152,10 @@ class Confidence:
     ) -> FlagResolutionDetails[Union[Object, List[Primitive]]]:
         return await self._evaluate_async(flag_key, Object, default_value, self.context)
 
+    #
+    # --- internals
+    #
+
     def _setup_logger(self, logger: logging.Logger) -> None:
         if logger is not None:
             logger.setLevel(logging.DEBUG)
@@ -162,10 +167,6 @@ class Confidence:
                 ch.setFormatter(formatter)
                 logger.addHandler(ch)
 
-    #
-    # --- internals
-    #
-
     def _handle_evaluation_result(
         self,
         result: ResolveResult,
@@ -173,7 +174,13 @@ class Confidence:
         value_type: Type[FieldType],
         default_value: FieldType,
         value_path: Optional[str],
+        context: Dict[str, FieldType],
     ) -> FlagResolutionDetails[Any]:
+        urlEncodedJsonContext = requests.utils.quote(json.dumps(context))
+        self.logger.debug(
+            f"See resolves for '{flag_key}' in Confidence: https://app.confidence.spotify.com/flags/resolver-test?client-key={self._client_secret}&flag=flags/{flag_key}&context={urlEncodedJsonContext}"  # noqa: E501
+        )
+
         if result.variant is None or len(str(result.value)) == 0:
             return FlagResolutionDetails(
                 value=default_value,
@@ -211,7 +218,7 @@ class Confidence:
             value_path = None
         result = self._resolve(FlagName(flag_id), context)
         return self._handle_evaluation_result(
-            result, flag_key, value_type, default_value, value_path
+            result, flag_key, value_type, default_value, value_path, context
         )
 
     async def _evaluate_async(
@@ -228,7 +235,7 @@ class Confidence:
             value_path = None
         result = await self._resolve_async(FlagName(flag_id), context)
         return self._handle_evaluation_result(
-            result, flag_key, value_type, default_value, value_path
+            result, flag_key, value_type, default_value, value_path, context
         )
 
     # type-arg: ignore

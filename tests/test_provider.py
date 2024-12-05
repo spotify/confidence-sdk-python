@@ -1,8 +1,6 @@
 import requests_mock
 import unittest
-from unittest.mock import patch
 import json
-import httpx
 
 from openfeature.flag_evaluation import Reason
 

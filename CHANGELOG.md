@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.1.0](https://github.com/spotify/confidence-sdk-python/compare/v1.0.1...v1.1.0) (2024-12-12)
+
+
+### 🐛 Bug Fixes
+
+* Resolve debug URL uses flag id ([#79](https://github.com/spotify/confidence-sdk-python/issues/79)) ([ad40666](https://github.com/spotify/confidence-sdk-python/commit/ad4066695c3e0819db56b2b9de9c5be705c194fe))
+* Resolve handling uses flag id ([ad40666](https://github.com/spotify/confidence-sdk-python/commit/ad4066695c3e0819db56b2b9de9c5be705c194fe))
+
+
+### ✨ New Features
+
+* add resolve debugger logging ([#77](https://github.com/spotify/confidence-sdk-python/issues/77)) ([1b34daf](https://github.com/spotify/confidence-sdk-python/commit/1b34daf4f2742474be09564611a267d73819bee4))
+
 ## [1.0.1](https://github.com/spotify/confidence-sdk-python/compare/v1.0.0...v1.0.1) (2024-11-07)
 
 

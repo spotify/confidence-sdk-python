@@ -170,6 +170,7 @@ class Confidence:
     def _handle_evaluation_result(
         self,
         result: ResolveResult,
+        flag_id: str,
         flag_key: str,
         value_type: Type[FieldType],
         default_value: FieldType,
@@ -178,7 +179,7 @@ class Confidence:
     ) -> FlagResolutionDetails[Any]:
         urlEncodedJsonContext = requests.utils.quote(json.dumps(context))
         self.logger.debug(
-            f"See resolves for '{flag_key}' in Confidence: https://app.confidence.spotify.com/flags/resolver-test?client-key={self._client_secret}&flag=flags/{flag_key}&context={urlEncodedJsonContext}"  # noqa: E501
+            f"See resolves for '{flag_id}' in Confidence: https://app.confidence.spotify.com/flags/resolver-test?client-key={self._client_secret}&flag=flags/{flag_id}&context={urlEncodedJsonContext}"  # noqa: E501
         )
 
         if result.variant is None or len(str(result.value)) == 0:
@@ -218,7 +219,7 @@ class Confidence:
             value_path = None
         result = self._resolve(FlagName(flag_id), context)
         return self._handle_evaluation_result(
-            result, flag_key, value_type, default_value, value_path, context
+            result, flag_id, flag_key, value_type, default_value, value_path, context
         )
 
     async def _evaluate_async(
@@ -235,7 +236,7 @@ class Confidence:
             value_path = None
         result = await self._resolve_async(FlagName(flag_id), context)
         return self._handle_evaluation_result(
-            result, flag_key, value_type, default_value, value_path, context
+            result, flag_id, flag_key, value_type, default_value, value_path, context
         )
 
     # type-arg: ignore

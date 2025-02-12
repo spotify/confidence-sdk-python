@@ -121,6 +121,21 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
             flag_metadata=details.flag_metadata,
         )
 
+    async def resolve_boolean_details_async(
+        self, flag_key, default_value, evaluation_context=None
+    ):
+        details = await self._confidence_with_context(
+            evaluation_context
+        ).resolve_boolean_details_async(flag_key, default_value)
+        return FlagResolutionDetails[bool](
+            value=details.value,
+            variant=details.variant,
+            reason=details.reason,
+            error_code=_to_openfeature_error_code(details.error_code),
+            error_message=details.error_message,
+            flag_metadata=details.flag_metadata,
+        )
+
     def resolve_float_details(
         self,
         flag_key: str,
@@ -130,6 +145,21 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
         details = self._confidence_with_context(
             evaluation_context
         ).resolve_float_details(flag_key, default_value)
+        return FlagResolutionDetails[float](
+            value=details.value,
+            variant=details.variant,
+            reason=details.reason,
+            error_code=_to_openfeature_error_code(details.error_code),
+            error_message=details.error_message,
+            flag_metadata=details.flag_metadata,
+        )
+
+    async def resolve_float_details_async(
+        self, flag_key, default_value, evaluation_context=None
+    ):
+        details = await self._confidence_with_context(
+            evaluation_context
+        ).resolve_float_details_async(flag_key, default_value)
         return FlagResolutionDetails[float](
             value=details.value,
             variant=details.variant,
@@ -157,6 +187,21 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
             flag_metadata=details.flag_metadata,
         )
 
+    async def resolve_integer_details_async(
+        self, flag_key, default_value, evaluation_context=None
+    ):
+        details = await self._confidence_with_context(
+            evaluation_context
+        ).resolve_integer_details_async(flag_key, default_value)
+        return FlagResolutionDetails[int](
+            value=details.value,
+            variant=details.variant,
+            reason=details.reason,
+            error_code=_to_openfeature_error_code(details.error_code),
+            error_message=details.error_message,
+            flag_metadata=details.flag_metadata,
+        )
+
     def resolve_string_details(
         self,
         flag_key: str,
@@ -175,6 +220,21 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
             flag_metadata=details.flag_metadata,
         )
 
+    async def resolve_string_details_async(
+        self, flag_key, default_value, evaluation_context=None
+    ):
+        details = await self._confidence_with_context(
+            evaluation_context
+        ).resolve_string_details_async(flag_key, default_value)
+        return FlagResolutionDetails[str](
+            value=details.value,
+            variant=details.variant,
+            reason=details.reason,
+            error_code=_to_openfeature_error_code(details.error_code),
+            error_message=details.error_message,
+            flag_metadata=details.flag_metadata,
+        )
+
     def resolve_object_details(
         self,
         flag_key: str,
@@ -184,6 +244,21 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):
         details = self._confidence_with_context(
             evaluation_context
         ).resolve_object_details(flag_key, default_value)
+        return FlagResolutionDetails[Union[Object, List[Primitive]]](
+            value=details.value,
+            variant=details.variant,
+            reason=details.reason,
+            error_code=_to_openfeature_error_code(details.error_code),
+            error_message=details.error_message,
+            flag_metadata=details.flag_metadata,
+        )
+
+    async def resolve_object_details_async(
+        self, flag_key, default_value, evaluation_context=None
+    ):
+        details = await self._confidence_with_context(
+            evaluation_context
+        ).resolve_object_details_async(flag_key, default_value)
         return FlagResolutionDetails[Union[Object, List[Primitive]]](
             value=details.value,
             variant=details.variant,

@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/spotify/confidence-sdk-python/compare/v1.1.0...v1.2.0) (2025-04-17)
+
+
+### ✨ New Features
+
+* add support for setting resolve timeout ([#82](https://github.com/spotify/confidence-sdk-python/issues/82)) ([469be0d](https://github.com/spotify/confidence-sdk-python/commit/469be0dfcee28c3bbbd8cda28ea2c7bfc7f68b35))
+
 ## [1.1.0](https://github.com/spotify/confidence-sdk-python/compare/v1.0.1...v1.1.0) (2024-12-12)
 
 

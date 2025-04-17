@@ -10,6 +10,7 @@ class ErrorCode(Enum):
     TARGETING_KEY_MISSING = "TARGETING_KEY_MISSING"
     INVALID_CONTEXT = "INVALID_CONTEXT"
     GENERAL = "GENERAL"
+    TIMEOUT = "TIMEOUT"
 
 
 class ConfidenceError(Exception):
@@ -31,9 +32,23 @@ class ConfidenceError(Exception):
         self.error_code = error_code
 
 
+class TimeoutError(ConfidenceError):
+    """
+    This exception should be raised when the request to the backend takes longer
+    than the timeout set in the client.
+    """
+
+    def __init__(self, error_message: typing.Optional[str] = None):
+        """
+        Constructor for the TimeoutError. The error code for this type of exception
+        is ErrorCode.TIMEOUT.
+        """
+        super().__init__(ErrorCode.TIMEOUT, error_message)
+
+
 class FlagNotFoundError(ConfidenceError):
     """
-    This exception should be raised when the provider cannot find a flag with the
+    This exception should be raised when the SDK cannot find a flag with the
     key provided by the user.
     """
 

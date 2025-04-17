@@ -22,15 +22,20 @@ from typing_extensions import TypeGuard
 from confidence import __version__
 from confidence.errors import (
     FlagNotFoundError,
+    GeneralError,
     ParseError,
     TypeMismatchError,
+    TimeoutError,
 )
-from .flag_types import FlagResolutionDetails, Reason
+from .flag_types import FlagResolutionDetails, Reason, ErrorCode
 from .names import FlagName, VariantName
 
 EU_RESOLVE_API_ENDPOINT = "https://resolver.eu.confidence.dev"
 US_RESOLVE_API_ENDPOINT = "https://resolver.us.confidence.dev"
 GLOBAL_RESOLVE_API_ENDPOINT = "https://resolver.confidence.dev"
+
+# Default timeout in milliseconds (10 seconds)
+DEFAULT_TIMEOUT_MS = 10000
 
 Primitive = Union[str, int, float, bool, None]
 FieldType = Union[Primitive, List[Primitive], List["Object"], "Object"]
@@ -79,6 +84,8 @@ class Confidence:
             self._region,
             self._apply_on_resolve,
             self._custom_resolve_base_url,
+            timeout_ms=self._timeout_ms,
+            logger=self.logger,
             async_client=self.async_client,
         )
         new_confidence.context = {**self.context, **context}
@@ -90,6 +97,7 @@ class Confidence:
         region: Region = Region.GLOBAL,
         apply_on_resolve: bool = True,
         custom_resolve_base_url: Optional[str] = None,
+        timeout_ms: Optional[int] = DEFAULT_TIMEOUT_MS,
         logger: logging.Logger = logging.getLogger("confidence_logger"),
         async_client: httpx.AsyncClient = httpx.AsyncClient(),
     ):
@@ -97,6 +105,7 @@ class Confidence:
         self._region = region
         self._api_endpoint = region.endpoint()
         self._apply_on_resolve = apply_on_resolve
+        self._timeout_ms = timeout_ms
         self.logger = logger
         self.async_client = async_client
         self._setup_logger(logger)
@@ -217,10 +226,47 @@ class Confidence:
         else:
             flag_id = flag_key
             value_path = None
-        result = self._resolve(FlagName(flag_id), context)
-        return self._handle_evaluation_result(
-            result, flag_id, flag_key, value_type, default_value, value_path, context
-        )
+        try:
+            result = self._resolve(FlagName(flag_id), context)
+            return self._handle_evaluation_result(
+                result,
+                flag_id,
+                flag_key,
+                value_type,
+                default_value,
+                value_path,
+                context,
+            )
+        except FlagNotFoundError:
+            self.logger.info(f"Flag {flag_key} not found")
+            return FlagResolutionDetails(
+                value=default_value,
+                reason=Reason.DEFAULT,
+                error_code=ErrorCode.FLAG_NOT_FOUND,
+                error_message=f"Flag {flag_key} not found",
+                flag_metadata={"flag_key": flag_key},
+            )
+        except TimeoutError as e:
+            self.logger.warning(
+                f"Request timed out after {self._timeout_ms} ms"
+                f" when resolving flag {flag_key}"
+            )
+            return FlagResolutionDetails(
+                value=default_value,
+                reason=Reason.DEFAULT,
+                error_code=ErrorCode.TIMEOUT,
+                error_message=str(e),
+                flag_metadata={"flag_key": flag_key},
+            )
+        except Exception as e:
+            self.logger.error(f"Error resolving flag {flag_key}: {str(e)}")
+            return FlagResolutionDetails(
+                value=default_value,
+                reason=Reason.ERROR,
+                error_code=ErrorCode.GENERAL,
+                error_message=str(e),
+                flag_metadata={"flag_key": flag_key},
+            )
 
     async def _evaluate_async(
         self,
@@ -234,10 +280,47 @@ class Confidence:
         else:
             flag_id = flag_key
             value_path = None
-        result = await self._resolve_async(FlagName(flag_id), context)
-        return self._handle_evaluation_result(
-            result, flag_id, flag_key, value_type, default_value, value_path, context
-        )
+        try:
+            result = await self._resolve_async(FlagName(flag_id), context)
+            return self._handle_evaluation_result(
+                result,
+                flag_id,
+                flag_key,
+                value_type,
+                default_value,
+                value_path,
+                context,
+            )
+        except FlagNotFoundError:
+            self.logger.info(f"Flag {flag_key} not found")
+            return FlagResolutionDetails(
+                value=default_value,
+                reason=Reason.DEFAULT,
+                error_code=ErrorCode.FLAG_NOT_FOUND,
+                error_message=f"Flag {flag_key} not found",
+                flag_metadata={"flag_key": flag_key},
+            )
+        except TimeoutError as e:
+            self.logger.warning(
+                f"Request timed out after {self._timeout_ms} ms"
+                f" when resolving flag {flag_key}"
+            )
+            return FlagResolutionDetails(
+                value=default_value,
+                reason=Reason.DEFAULT,
+                error_code=ErrorCode.TIMEOUT,
+                error_message=str(e),
+                flag_metadata={"flag_key": flag_key},
+            )
+        except Exception as e:
+            self.logger.error(f"Error resolving flag {flag_key}: {str(e)}")
+            return FlagResolutionDetails(
+                value=default_value,
+                reason=Reason.DEFAULT,
+                error_code=ErrorCode.GENERAL,
+                error_message=str(e),
+                flag_metadata={"flag_key": flag_key},
+            )
 
     # type-arg: ignore
     def track(self, event_name: str, data: Dict[str, FieldType]) -> None:
@@ -266,20 +349,26 @@ class Confidence:
 
         event_url = "https://events.confidence.dev/v1/events:publish"
         headers = {"Content-Type": "application/json", "Accept": "application/json"}
-        response = requests.post(event_url, json=request_body, headers=headers)
-        if response.status_code == 200:
-            json = response.json()
-
-            json_errors = json.get("errors")
-            if json_errors:
-                self.logger.warn("events emitted with errors:")
-                for error in json_errors:
-                    self.logger.warn(error)
-        else:
-            self.logger.warn(
-                f"Track event {event_name} failed with status code"
-                + f" {response.status_code} and reason: {response.reason}"
+        timeout_sec = None if self._timeout_ms is None else self._timeout_ms / 1000.0
+        try:
+            response = requests.post(
+                event_url, json=request_body, headers=headers, timeout=timeout_sec
             )
+            if response.status_code == 200:
+                json = response.json()
+
+                json_errors = json.get("errors")
+                if json_errors:
+                    self.logger.warning("events emitted with errors:")
+                    for error in json_errors:
+                        self.logger.warning(error)
+            else:
+                self.logger.warning(
+                    f"Track event {event_name} failed with status code"
+                    + f" {response.status_code} and reason: {response.reason}"
+                )
+        except requests.exceptions.RequestException as e:
+            self.logger.warning(f"Failed to track event {event_name}: {str(e)}")
 
     def _handle_resolve_response(
         self, response: requests.Response, flag_name: FlagName
@@ -296,8 +385,7 @@ class Confidence:
         token = response_body["resolveToken"]
 
         if len(resolved_flags) == 0:
-            self.logger.info(f"Flag {flag_name} not found")
-            return ResolveResult(None, None, token)
+            raise FlagNotFoundError()
 
         resolved_flag = resolved_flags[0]
         variant = resolved_flag.get("variant")
@@ -320,8 +408,21 @@ class Confidence:
             base_url = self._custom_resolve_base_url
 
         resolve_url = f"{base_url}/v1/flags:resolve"
-        response = requests.post(resolve_url, json=request_body)
-        return self._handle_resolve_response(response, flag_name)
+        timeout_sec = None if self._timeout_ms is None else self._timeout_ms / 1000.0
+        try:
+            response = requests.post(
+                resolve_url, json=request_body, timeout=timeout_sec
+            )
+            return self._handle_resolve_response(response, flag_name)
+        except requests.exceptions.Timeout:
+            self.logger.warning(
+                f"Request timed out after {timeout_sec}s"
+                f" when resolving flag {flag_name}"
+            )
+            raise TimeoutError()
+        except requests.exceptions.RequestException as e:
+            self.logger.warning(f"Error resolving flag {flag_name}: {str(e)}")
+            raise GeneralError(str(e))
 
     async def _resolve_async(
         self, flag_name: FlagName, context: Dict[str, FieldType]
@@ -338,8 +439,21 @@ class Confidence:
             base_url = self._custom_resolve_base_url
 
         resolve_url = f"{base_url}/v1/flags:resolve"
-        response = await self.async_client.post(resolve_url, json=request_body)
-        return self._handle_resolve_response(response, flag_name)
+        timeout_sec = None if self._timeout_ms is None else self._timeout_ms / 1000.0
+        try:
+            response = await self.async_client.post(
+                resolve_url, json=request_body, timeout=timeout_sec
+            )
+            return self._handle_resolve_response(response, flag_name)
+        except httpx.TimeoutException:
+            self.logger.warning(
+                f"Request timed out after {timeout_sec}s"
+                f" when resolving flag {flag_name}"
+            )
+            raise TimeoutError()
+        except httpx.HTTPError as e:
+            self.logger.warning(f"Error resolving flag {flag_name}: {str(e)}")
+            raise GeneralError(str(e))
 
     @staticmethod
     def _select(

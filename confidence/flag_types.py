@@ -37,6 +37,7 @@ class Reason(StrEnum):
     SPLIT = "SPLIT"
     TARGETING_MATCH = "TARGETING_MATCH"
     UNKNOWN = "UNKNOWN"
+    TIMEOUT = "TIMEOUT"
 
 
 FlagMetadata = typing.Mapping[str, typing.Any]

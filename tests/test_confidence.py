@@ -1,13 +1,15 @@
 import requests_mock
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, AsyncMock
 import json
 import httpx
+from requests.exceptions import Timeout as RequestsTimeout
 
-from openfeature.flag_evaluation import Reason
 
 import confidence.confidence
-from confidence.confidence import Confidence
+from confidence.confidence import Confidence, DEFAULT_TIMEOUT_MS
+from confidence.errors import ErrorCode
+from confidence.flag_types import Reason
 
 
 class TestConfidence(unittest.IsolatedAsyncioTestCase):
@@ -49,6 +51,10 @@ class TestConfidence(unittest.IsolatedAsyncioTestCase):
             )
             self.assertEqual(result.value, "yellow")
             self.assertIsNone(result.variant)
+            self.assertEqual(result.error_code, ErrorCode.FLAG_NOT_FOUND)
+            self.assertEqual(
+                result.error_message, "Flag some-flag-that-doesnt-exist not found"
+            )
 
     def test_resolve_string_with_dot_notation_request_payload(self):
         with requests_mock.Mocker() as mock:
@@ -324,6 +330,151 @@ class TestConfidence(unittest.IsolatedAsyncioTestCase):
             )
             self.assertEqual(result.value, "brown")
             self.assertEqual(result.reason, Reason.DEFAULT)
+
+    def test_resolve_with_timeout(self):
+        with requests_mock.Mocker() as mock:
+            mock.post(
+                "https://resolver.confidence.dev/v1/flags:resolve",
+                json=SUCCESSFUL_FLAG_RESOLVE,
+            )
+
+            with patch("requests.post") as mock_post:
+                mock_post.return_value.status_code = 200
+                mock_post.return_value.json.return_value = SUCCESSFUL_FLAG_RESOLVE
+
+                confidence_with_timeout = Confidence(
+                    client_secret="test", timeout_ms=5500
+                )
+                confidence_with_timeout.resolve_string_details(
+                    flag_key="python-flag-1.string-key",
+                    default_value="yellow",
+                )
+
+                # Verify that timeout was passed to requests.post
+                mock_post.assert_called_once()
+                _, kwargs = mock_post.call_args
+                self.assertEqual(kwargs["timeout"], 5.5)
+
+    async def test_resolve_with_timeout_async(self):
+        mock_response = httpx.Response(
+            status_code=200,
+            json=SUCCESSFUL_FLAG_RESOLVE,
+            request=httpx.Request(
+                "POST", "https://resolver.confidence.dev/v1/flags:resolve"
+            ),
+        )
+
+        # Create an AsyncMock that returns an awaitable that resolves to mock_response
+        mock_post = AsyncMock()
+        mock_post.return_value = mock_response
+
+        with patch("httpx.AsyncClient.post", mock_post):
+            confidence_with_timeout = Confidence(client_secret="test", timeout_ms=3500)
+            await confidence_with_timeout.resolve_string_details_async(
+                flag_key="python-flag-1.string-key",
+                default_value="yellow",
+            )
+
+            # Verify that timeout was passed to httpx.AsyncClient.post
+            mock_post.assert_called_once()
+            _, kwargs = mock_post.call_args
+            self.assertEqual(kwargs["timeout"], 3.5)
+
+    def test_resolve_with_default_timeout(self):
+        """Test that the default timeout is used when timeout_ms is not provided."""
+        with requests_mock.Mocker() as mock:
+            mock.post(
+                "https://resolver.confidence.dev/v1/flags:resolve",
+                json=SUCCESSFUL_FLAG_RESOLVE,
+            )
+
+            with patch("requests.post") as mock_post:
+                mock_post.return_value.status_code = 200
+                mock_post.return_value.json.return_value = SUCCESSFUL_FLAG_RESOLVE
+
+                # Create client without specifying timeout_ms
+                confidence_default_timeout = Confidence(client_secret="test")
+                confidence_default_timeout.resolve_string_details(
+                    flag_key="python-flag-1.string-key",
+                    default_value="yellow",
+                )
+
+                # Verify that default timeout (10 seconds) was passed to requests.post
+                mock_post.assert_called_once()
+                _, kwargs = mock_post.call_args
+                self.assertEqual(kwargs["timeout"], DEFAULT_TIMEOUT_MS / 1000.0)
+
+    async def test_resolve_with_default_timeout_async(self):
+        mock_response = httpx.Response(
+            status_code=200,
+            json=SUCCESSFUL_FLAG_RESOLVE,
+            request=httpx.Request(
+                "POST", "https://resolver.confidence.dev/v1/flags:resolve"
+            ),
+        )
+
+        # Create an AsyncMock that returns an awaitable that resolves to mock_response
+        mock_post = AsyncMock()
+        mock_post.return_value = mock_response
+
+        with patch("httpx.AsyncClient.post", mock_post):
+            # Create client without specifying timeout_ms
+            confidence_default_timeout = Confidence(client_secret="test")
+            await confidence_default_timeout.resolve_string_details_async(
+                flag_key="python-flag-1.string-key",
+                default_value="yellow",
+            )
+
+            # Verify that default timeout (10 seconds) was passed to
+            # httpx.AsyncClient.post
+            mock_post.assert_called_once()
+            _, kwargs = mock_post.call_args
+            self.assertEqual(kwargs["timeout"], DEFAULT_TIMEOUT_MS / 1000.0)
+
+    def test_handle_actual_timeout(self):
+        with patch("requests.post") as mock_post:
+            # Simulate a timeout by raising the Timeout exception
+            mock_post.side_effect = RequestsTimeout("Connection timed out")
+
+            confidence_with_timeout = Confidence(client_secret="test", timeout_ms=100)
+
+            # The operation should NOT raise an exception, but return default value
+            result = confidence_with_timeout.resolve_string_details(
+                flag_key="python-flag-1.string-key",
+                default_value="yellow",
+            )
+
+            # Verify that default value was returned
+            self.assertEqual(result.value, "yellow")
+            self.assertEqual(result.reason, Reason.DEFAULT)
+            self.assertEqual(
+                result.flag_metadata["flag_key"], "python-flag-1.string-key"
+            )
+            self.assertIsNone(result.variant)
+            self.assertEqual(result.error_code, ErrorCode.TIMEOUT)
+
+    async def test_handle_actual_timeout_async(self):
+        # Create an AsyncMock that raises a timeout exception
+        mock_post = AsyncMock()
+        mock_post.side_effect = httpx.TimeoutException("Connection timed out")
+
+        with patch("httpx.AsyncClient.post", mock_post):
+            confidence_with_timeout = Confidence(client_secret="test", timeout_ms=100)
+
+            # The operation should NOT raise an exception, but return default value
+            result = await confidence_with_timeout.resolve_string_details_async(
+                flag_key="python-flag-1.string-key",
+                default_value="yellow",
+            )
+
+            # Verify that default value was returned
+            self.assertEqual(result.value, "yellow")
+            self.assertEqual(result.reason, Reason.DEFAULT)
+            self.assertEqual(
+                result.flag_metadata["flag_key"], "python-flag-1.string-key"
+            )
+            self.assertIsNone(result.variant)
+            self.assertEqual(result.error_code, ErrorCode.TIMEOUT)
 
     if __name__ == "__main__":
         unittest.main()

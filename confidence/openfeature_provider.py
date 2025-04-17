@@ -85,6 +85,8 @@ def _to_openfeature_error_code(
         return openfeature.exception.ErrorCode.GENERAL
     if error_code is ErrorCode.PARSE_ERROR:
         return openfeature.exception.ErrorCode.PARSE_ERROR
+    if error_code is ErrorCode.TIMEOUT:
+        return openfeature.exception.ErrorCode.GENERAL
     if error_code is ErrorCode.NOT_READY:
         return openfeature.exception.ErrorCode.PROVIDER_NOT_READY
 

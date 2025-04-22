@@ -29,6 +29,11 @@ jobs:
     if: ${{ needs.release-please.outputs.release_created }}
     container:
       image: "python:3.11"
+    environment:
+      name: pypi
+      url: https://pypi.org/p/spotify-confidence-sdk
+    permissions:
+      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
     steps:
       - name: Check out src from Git
         uses: actions/checkout@v4
@@ -77,6 +82,4 @@ jobs:
           .
 
       - name: pypi-publish
-        uses: pypa/gh-action-pypi-publish@v1.10.3
-        with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
+        uses: pypa/gh-action-pypi-publish@v1.12.4

@@ -27,8 +27,6 @@ jobs:
     needs: release-please
     runs-on: ubuntu-latest
     if: ${{ needs.release-please.outputs.release_created }}
-    container:
-      image: "python:3.11"
     environment:
       name: pypi
       url: https://pypi.org/p/spotify-confidence-sdk

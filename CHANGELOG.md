@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.2](https://github.com/spotify/confidence-sdk-python/compare/v1.2.1...v1.2.2) (2025-04-22)
+
+
+### 🧹 Chore
+
+* remove container spec in release job ([#86](https://github.com/spotify/confidence-sdk-python/issues/86)) ([78a5611](https://github.com/spotify/confidence-sdk-python/commit/78a561172aa3c82afb2759c31244fb8b5f6225df))
+
 ## [1.2.1](https://github.com/spotify/confidence-sdk-python/compare/v1.2.0...v1.2.1) (2025-04-22)
 
 

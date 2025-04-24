@@ -1,4 +1,5 @@
 import asyncio
+import base64
 import dataclasses
 from datetime import datetime
 from enum import Enum
@@ -176,6 +177,19 @@ class Confidence:
                 ch.setFormatter(formatter)
                 logger.addHandler(ch)
 
+    def _logResolveTester(self, flag_id: str, context: Dict[str, FieldType]) -> None:
+        json_payload = json.dumps(
+            {
+                "flag": f"flags/{flag_id}",
+                "context": context,
+                "clientKey": self._client_secret,
+            }
+        )
+        base64_payload = base64.b64encode(json_payload.encode("utf-8")).decode("utf-8")
+        self.logger.debug(
+            f"Check your flag evaluation for '{flag_id}' by copy-pasting the payload to the Resolve tester: {base64_payload}"  # noqa: E501
+        )
+
     def _handle_evaluation_result(
         self,
         result: ResolveResult,
@@ -186,10 +200,7 @@ class Confidence:
         value_path: Optional[str],
         context: Dict[str, FieldType],
     ) -> FlagResolutionDetails[Any]:
-        urlEncodedJsonContext = requests.utils.quote(json.dumps(context))
-        self.logger.debug(
-            f"See resolves for '{flag_id}' in Confidence: https://app.confidence.spotify.com/flags/resolver-test?client-key={self._client_secret}&flag=flags/{flag_id}&context={urlEncodedJsonContext}"  # noqa: E501
-        )
+        self._logResolveTester(flag_id, context)
 
         if result.variant is None or len(str(result.value)) == 0:
             return FlagResolutionDetails(

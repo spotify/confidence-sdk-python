@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.3](https://github.com/spotify/confidence-sdk-python/compare/v1.2.2...v1.2.3) (2025-04-28)
+
+
+### 🐛 Bug Fixes
+
+* change how we log resolve tester hints ([#89](https://github.com/spotify/confidence-sdk-python/issues/89)) ([077ddf6](https://github.com/spotify/confidence-sdk-python/commit/077ddf68df9b2cf64fc03efaa8a6ba94c3302fc5))
+
 ## [1.2.2](https://github.com/spotify/confidence-sdk-python/compare/v1.2.1...v1.2.2) (2025-04-22)
 
 

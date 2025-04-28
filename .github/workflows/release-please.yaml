@@ -40,12 +40,6 @@ jobs:
           fetch-depth: 0 # this (and below) is needed to have setuptools_scm report the correct version
           fetch-tags: true
 
-      - name: Cache virtualenvironment
-        uses: actions/cache@v3
-        with:
-          path: ~/.venv
-          key: ${{ hashFiles('requirements.txt', 'requirements-dev.txt') }}
-
       - name: Upgrade pip
         run: pip install --upgrade pip
 

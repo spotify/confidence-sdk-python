@@ -91,7 +91,7 @@ def _to_openfeature_error_code(
         return openfeature.exception.ErrorCode.PROVIDER_NOT_READY
 
 
-class ConfidenceOpenFeatureProvider(AbstractProvider):
+class ConfidenceOpenFeatureProvider(AbstractProvider):  # type: ignore[misc]
     def __init__(self, confidence_sdk: confidence.confidence.Confidence):
         self.confidence_sdk = confidence_sdk
 

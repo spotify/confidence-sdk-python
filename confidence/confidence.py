@@ -19,6 +19,7 @@ from typing import (
 import requests
 import httpx
 from typing_extensions import TypeGuard
+import time
 
 from confidence import __version__
 from confidence.errors import (
@@ -30,6 +31,7 @@ from confidence.errors import (
 )
 from .flag_types import FlagResolutionDetails, Reason, ErrorCode
 from .names import FlagName, VariantName
+from .telemetry import Telemetry, ProtoTraceId, ProtoStatus
 
 EU_RESOLVE_API_ENDPOINT = "https://resolver.eu.confidence.dev"
 US_RESOLVE_API_ENDPOINT = "https://resolver.us.confidence.dev"
@@ -111,6 +113,16 @@ class Confidence:
         self.async_client = async_client
         self._setup_logger(logger)
         self._custom_resolve_base_url = custom_resolve_base_url
+        self._telemetry = Telemetry(__version__)
+
+    def _get_resolve_headers(self) -> Dict[str, str]:
+        telemetry_header = self._telemetry.get_monitoring_header()    
+        headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "X-CONFIDENCE-TELEMETRY": telemetry_header
+        }
+        return headers
 
     def resolve_boolean_details(
         self, flag_key: str, default_value: bool
@@ -367,7 +379,6 @@ class Confidence:
             )
             if response.status_code == 200:
                 json = response.json()
-
                 json_errors = json.get("errors")
                 if json_errors:
                     self.logger.warning("events emitted with errors:")
@@ -407,37 +418,55 @@ class Confidence:
     def _resolve(
         self, flag_name: FlagName, context: Dict[str, FieldType]
     ) -> ResolveResult:
-        request_body = {
-            "clientSecret": self._client_secret,
-            "evaluationContext": context,
-            "apply": self._apply_on_resolve,
-            "flags": [str(flag_name)],
-            "sdk": {"id": "SDK_ID_PYTHON_CONFIDENCE", "version": __version__},
-        }
-        base_url = self._api_endpoint
-        if self._custom_resolve_base_url is not None:
-            base_url = self._custom_resolve_base_url
-
-        resolve_url = f"{base_url}/v1/flags:resolve"
-        timeout_sec = None if self._timeout_ms is None else self._timeout_ms / 1000.0
+        start_time = time.perf_counter()
         try:
-            response = requests.post(
-                resolve_url, json=request_body, timeout=timeout_sec
-            )
-            return self._handle_resolve_response(response, flag_name)
-        except requests.exceptions.Timeout:
-            self.logger.warning(
-                f"Request timed out after {timeout_sec}s"
-                f" when resolving flag {flag_name}"
-            )
-            raise TimeoutError()
-        except requests.exceptions.RequestException as e:
-            self.logger.warning(f"Error resolving flag {flag_name}: {str(e)}")
-            raise GeneralError(str(e))
+            request_body = {
+                "clientSecret": self._client_secret,
+                "evaluationContext": context,
+                "apply": self._apply_on_resolve,
+                "flags": [str(flag_name)],
+                "sdk": {"id": "SDK_ID_PYTHON_CONFIDENCE", "version": __version__},
+            }
+            base_url = self._api_endpoint
+            if self._custom_resolve_base_url is not None:
+                base_url = self._custom_resolve_base_url
+
+            resolve_url = f"{base_url}/v1/flags:resolve"
+            timeout_sec = None if self._timeout_ms is None else self._timeout_ms / 1000.0
+            
+            try:
+                response = requests.post(
+                    resolve_url, 
+                    json=request_body, 
+                    headers=self._get_resolve_headers(),
+                    timeout=timeout_sec
+                )
+                
+                result = self._handle_resolve_response(response, flag_name)
+                duration_ms = int((time.perf_counter() - start_time) * 1000)
+                self._telemetry.add_trace(ProtoTraceId.PROTO_TRACE_ID_RESOLVE_LATENCY, duration_ms, ProtoStatus.PROTO_STATUS_SUCCESS)
+                return result
+            except requests.exceptions.Timeout:
+                duration_ms = int((time.perf_counter() - start_time) * 1000)
+                self._telemetry.add_trace(ProtoTraceId.PROTO_TRACE_ID_RESOLVE_LATENCY, duration_ms, ProtoStatus.PROTO_STATUS_TIMEOUT)
+                self.logger.warning(
+                    f"Request timed out after {timeout_sec}s"
+                    f" when resolving flag {flag_name}"
+                )
+                raise TimeoutError()
+            except requests.exceptions.RequestException as e:
+                duration_ms = int((time.perf_counter() - start_time) * 1000)
+                self._telemetry.add_trace(ProtoTraceId.PROTO_TRACE_ID_RESOLVE_LATENCY, duration_ms, ProtoStatus.PROTO_STATUS_ERROR)
+                self.logger.warning(f"Error resolving flag {flag_name}: {str(e)}")
+                raise GeneralError(str(e))
+        except Exception as e:
+            # Just re-raise any other exceptions without adding another trace
+            raise e
 
     async def _resolve_async(
         self, flag_name: FlagName, context: Dict[str, FieldType]
     ) -> ResolveResult:
+        start_time = time.perf_counter()
         request_body = {
             "clientSecret": self._client_secret,
             "evaluationContext": context,
@@ -453,16 +482,26 @@ class Confidence:
         timeout_sec = None if self._timeout_ms is None else self._timeout_ms / 1000.0
         try:
             response = await self.async_client.post(
-                resolve_url, json=request_body, timeout=timeout_sec
+                resolve_url, 
+                json=request_body, 
+                headers=self._get_resolve_headers(),
+                timeout=timeout_sec
             )
-            return self._handle_resolve_response(response, flag_name)
+            result = self._handle_resolve_response(response, flag_name)
+            duration_ms = int((time.perf_counter() - start_time) * 1000)
+            self._telemetry.add_trace(ProtoTraceId.PROTO_TRACE_ID_RESOLVE_LATENCY, duration_ms, ProtoStatus.PROTO_STATUS_SUCCESS)
+            return result
         except httpx.TimeoutException:
+            duration_ms = int((time.perf_counter() - start_time) * 1000)
+            self._telemetry.add_trace(ProtoTraceId.PROTO_TRACE_ID_RESOLVE_LATENCY, duration_ms, ProtoStatus.PROTO_STATUS_TIMEOUT)
             self.logger.warning(
                 f"Request timed out after {timeout_sec}s"
                 f" when resolving flag {flag_name}"
             )
             raise TimeoutError()
         except httpx.HTTPError as e:
+            duration_ms = int((time.perf_counter() - start_time) * 1000)
+            self._telemetry.add_trace(ProtoTraceId.PROTO_TRACE_ID_RESOLVE_LATENCY, duration_ms, ProtoStatus.PROTO_STATUS_ERROR)
             self.logger.warning(f"Error resolving flag {flag_name}: {str(e)}")
             raise GeneralError(str(e))
 

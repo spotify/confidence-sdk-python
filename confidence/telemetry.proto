@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+package confidence.telemetry.v1;
+
+option go_package = "github.com/spotify/confidence-sdk-go/pkg/confidence";
+
+enum ProtoPlatform {
+  PROTO_PLATFORM_UNSPECIFIED = 0;
+  PROTO_PLATFORM_JS_WEB = 4;
+  PROTO_PLATFORM_JS_SERVER = 5;
+  PROTO_PLATFORM_PYTHON = 6;
+  PROTO_PLATFORM_GO = 7;
+}
+
+message ProtoMonitoring {
+  repeated ProtoLibraryTraces library_traces = 1;
+  ProtoPlatform platform = 2;
+}
+
+message ProtoLibraryTraces {
+  ProtoLibrary library = 1;
+  string library_version = 2;
+  repeated ProtoTrace traces = 3;
+
+  message ProtoTrace {
+    ProtoTraceId id = 1;
+
+    // DEPRECATED
+    optional uint64 millisecond_duration = 2;
+
+    oneof trace {
+      ProtoRequestTrace request_trace = 3;
+      ProtoCountTrace count_trace = 4;
+    }
+
+    message ProtoCountTrace {}
+
+    message ProtoRequestTrace {
+      uint64 millisecond_duration = 1;
+      ProtoStatus status = 2;
+
+      enum ProtoStatus {
+        PROTO_STATUS_UNSPECIFIED = 0;
+        PROTO_STATUS_SUCCESS = 1;
+        PROTO_STATUS_ERROR = 2;
+        PROTO_STATUS_TIMEOUT = 3;
+        PROTO_STATUS_CACHED = 4;
+      }
+    }
+  }
+
+  enum ProtoLibrary {
+    PROTO_LIBRARY_UNSPECIFIED = 0;
+    PROTO_LIBRARY_CONFIDENCE = 1;
+    PROTO_LIBRARY_OPEN_FEATURE = 2;
+    PROTO_LIBRARY_REACT = 3;
+  }
+
+  enum ProtoTraceId {
+    PROTO_TRACE_ID_UNSPECIFIED = 0;
+    PROTO_TRACE_ID_RESOLVE_LATENCY = 1;
+    PROTO_TRACE_ID_STALE_FLAG = 2;
+    PROTO_TRACE_ID_FLAG_TYPE_MISMATCH = 3;
+    PROTO_TRACE_ID_WITH_CONTEXT = 4;
+  }
+} 

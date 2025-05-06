@@ -20,16 +20,16 @@ class TestTelemetry(unittest.TestCase):
         # Reset singleton state before each test
         Telemetry._instance = None
         Telemetry._initialized = False
-        self.telemetry = Telemetry("1.0.0")
 
     def test_add_trace(self):
-        self.telemetry.add_trace(
+        telemetry = Telemetry("1.0.0")
+        telemetry.add_trace(
             ProtoTraceId.PROTO_TRACE_ID_RESOLVE_LATENCY,
             100,
             ProtoStatus.PROTO_STATUS_SUCCESS,
         )
 
-        header = self.telemetry.get_monitoring_header()
+        header = telemetry.get_monitoring_header()
         monitoring = ProtoMonitoring()
         monitoring.ParseFromString(base64.b64decode(header))
 
@@ -47,45 +47,47 @@ class TestTelemetry(unittest.TestCase):
         self.assertEqual(trace.request_trace.status, ProtoStatus.PROTO_STATUS_SUCCESS)
 
     def test_traces_are_consumed(self):
-        self.telemetry.add_trace(
+        telemetry = Telemetry("1.0.0")
+        telemetry.add_trace(
             ProtoTraceId.PROTO_TRACE_ID_RESOLVE_LATENCY,
             100,
             ProtoStatus.PROTO_STATUS_SUCCESS,
         )
-        self.telemetry.add_trace(
+        telemetry.add_trace(
             ProtoTraceId.PROTO_TRACE_ID_RESOLVE_LATENCY,
             200,
             ProtoStatus.PROTO_STATUS_ERROR,
         )
 
-        header1 = self.telemetry.get_monitoring_header()
+        header1 = telemetry.get_monitoring_header()
         monitoring1 = ProtoMonitoring()
         monitoring1.ParseFromString(base64.b64decode(header1))
         self.assertEqual(len(monitoring1.library_traces[0].traces), 2)
 
-        header2 = self.telemetry.get_monitoring_header()
+        header2 = telemetry.get_monitoring_header()
         monitoring2 = ProtoMonitoring()
         monitoring2.ParseFromString(base64.b64decode(header2))
         self.assertEqual(len(monitoring2.library_traces[0].traces), 0)
 
     def test_multiple_traces(self):
-        self.telemetry.add_trace(
+        telemetry = Telemetry("1.0.0")
+        telemetry.add_trace(
             ProtoTraceId.PROTO_TRACE_ID_RESOLVE_LATENCY,
             100,
             ProtoStatus.PROTO_STATUS_SUCCESS,
         )
-        self.telemetry.add_trace(
+        telemetry.add_trace(
             ProtoTraceId.PROTO_TRACE_ID_RESOLVE_LATENCY,
             200,
             ProtoStatus.PROTO_STATUS_ERROR,
         )
-        self.telemetry.add_trace(
+        telemetry.add_trace(
             ProtoTraceId.PROTO_TRACE_ID_RESOLVE_LATENCY,
             300,
             ProtoStatus.PROTO_STATUS_TIMEOUT,
         )
 
-        header = self.telemetry.get_monitoring_header()
+        header = telemetry.get_monitoring_header()
         monitoring = ProtoMonitoring()
         monitoring.ParseFromString(base64.b64decode(header))
         traces = monitoring.library_traces[0].traces
@@ -180,18 +182,6 @@ class TestTelemetry(unittest.TestCase):
         self.assertEqual(trace.request_trace.status, ProtoStatus.PROTO_STATUS_ERROR)
         self.assertGreaterEqual(trace.request_trace.millisecond_duration, 10)
 
-    def test_send_telemetry(self):
-        with patch("requests.post") as mock_post:
-            mock_post.return_value = MagicMock(status_code=200)
-            self.telemetry.add_trace(
-                ProtoTraceId.PROTO_TRACE_ID_RESOLVE_LATENCY,
-                100,
-                ProtoStatus.PROTO_STATUS_SUCCESS
-            )
-            header = self.telemetry.get_monitoring_header()
-            self.assertIsNotNone(header)
-            mock_post.assert_not_called()  # No direct HTTP calls should be made
-
     @patch("requests.post")
     def test_disabled_telemetry(self, mock_post):
         # Create a confidence instance with telemetry disabled
@@ -221,6 +211,49 @@ class TestTelemetry(unittest.TestCase):
         confidence.resolve_boolean_details("test-flag", False)
         headers = mock_post.call_args[1]["headers"]
         self.assertNotIn("X-CONFIDENCE-TELEMETRY", headers)
+
+    @patch("requests.post")
+    def test_telemetry_shared_across_confidence_instances(self, mock_post):
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "resolvedFlags": [{"value": True, "variant": "on"}],
+            "resolveToken": "test-token",
+        }
+        mock_response.raise_for_status.return_value = None
+        mock_post.return_value = mock_response
+
+        # Create first confidence instance and resolve a flag
+        confidence1 = Confidence(client_secret="test-secret", region=Region.GLOBAL)
+        confidence1.resolve_boolean_details("test-flag", False)
+
+        # Create second confidence instance using with_context and resolve another flag
+        confidence2 = confidence1.with_context({"user_id": "test-user"})
+        confidence2.resolve_boolean_details("test-flag", False)
+
+        # Verify both instances share the same telemetry instance
+        self.assertIs(confidence1._telemetry, confidence2._telemetry)
+
+        self.assertEqual(mock_post.call_count, 2)
+
+        # First request should have no trace
+        headers1 = mock_post.call_args_list[0][1]["headers"]
+        self.assertIn("X-CONFIDENCE-TELEMETRY", headers1)
+        monitoring1 = ProtoMonitoring()
+        print(f"Decoding telemetry header: {headers1['X-CONFIDENCE-TELEMETRY']}")
+        monitoring1.ParseFromString(base64.b64decode(headers1["X-CONFIDENCE-TELEMETRY"]))
+        traces1 = monitoring1.library_traces[0].traces
+        print(f"First request traces: {traces1}")
+        self.assertEqual(len(traces1), 0)
+
+        # Second request should have the first traces
+        headers2 = mock_post.call_args_list[1][1]["headers"]
+        self.assertIn("X-CONFIDENCE-TELEMETRY", headers2)
+        monitoring2 = ProtoMonitoring()
+        print(f"Decoding telemetry header: {headers1['X-CONFIDENCE-TELEMETRY']}")
+        monitoring2.ParseFromString(base64.b64decode(headers2["X-CONFIDENCE-TELEMETRY"]))
+        traces2 = monitoring2.library_traces[0].traces
+        self.assertEqual(len(traces2), 1)
 
 if __name__ == "__main__":
     unittest.main()

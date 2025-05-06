@@ -29,6 +29,8 @@ class Telemetry:
     def __new__(cls, version: str, disabled: bool = False) -> "Telemetry":
         if cls._instance is None:
             cls._instance = super(Telemetry, cls).__new__(cls)
+            cls._initialized = False
+            cls._disabled = disabled
         return cls._instance
 
     def __init__(self, version: str, disabled: bool = False) -> None:

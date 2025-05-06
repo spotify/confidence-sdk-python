@@ -1,7 +1,6 @@
 import base64
-import sys
 from queue import Queue
-from typing import Optional, TypeVar, Generic, cast
+from typing import Optional, TypeVar, cast
 from typing_extensions import TypeAlias
 
 from confidence.telemetry_pb2 import (
@@ -17,13 +16,7 @@ ProtoTraceId: TypeAlias = ProtoLibraryTraces.ProtoTraceId
 ProtoStatus: TypeAlias = ProtoLibraryTraces.ProtoTrace.ProtoRequestTrace.ProtoStatus
 
 T = TypeVar("T")
-
-if sys.version_info >= (3, 9):
-    QueueType = Queue
-else:
-
-    class QueueType(Queue, Generic[T]):
-        pass
+QueueType = Queue
 
 
 class Telemetry:

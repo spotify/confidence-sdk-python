@@ -90,7 +90,6 @@ class Confidence:
             timeout_ms=self._timeout_ms,
             logger=self.logger,
             async_client=self.async_client,
-            telemetry=self._telemetry,
         )
         new_confidence.context = {**self.context, **context}
         return new_confidence
@@ -105,7 +104,6 @@ class Confidence:
         logger: logging.Logger = logging.getLogger("confidence_logger"),
         async_client: httpx.AsyncClient = httpx.AsyncClient(),
         disable_telemetry: bool = False,
-        telemetry: Optional[Telemetry] = None,
     ):
         self._client_secret = client_secret
         self._region = region
@@ -116,11 +114,7 @@ class Confidence:
         self.async_client = async_client
         self._setup_logger(logger)
         self._custom_resolve_base_url = custom_resolve_base_url
-        self._telemetry = (
-            telemetry
-            if telemetry is not None
-            else Telemetry(__version__, disabled=disable_telemetry)
-        )
+        self._telemetry = Telemetry(__version__, disabled=disable_telemetry)
 
     def _get_resolve_headers(self) -> Dict[str, str]:
         headers = {

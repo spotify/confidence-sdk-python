@@ -1,6 +1,6 @@
 import base64
 from queue import Queue
-from typing import Optional, TypeVar, cast
+from typing import Optional
 from typing_extensions import TypeAlias
 
 from confidence.telemetry_pb2 import (
@@ -15,15 +15,12 @@ ProtoLibrary: TypeAlias = ProtoLibraryTraces.ProtoLibrary
 ProtoTraceId: TypeAlias = ProtoLibraryTraces.ProtoTraceId
 ProtoStatus: TypeAlias = ProtoLibraryTraces.ProtoTrace.ProtoRequestTrace.ProtoStatus
 
-T = TypeVar("T")
-QueueType = Queue
-
 
 class Telemetry:
     _instance: Optional["Telemetry"] = None
     _initialized: bool = False
     version: str
-    _traces_queue: "QueueType[ProtoTrace]"
+    _traces_queue: Queue[ProtoTrace]
     _disabled: bool
 
     def __new__(cls, version: str, disabled: bool = False) -> "Telemetry":
@@ -36,7 +33,7 @@ class Telemetry:
     def __init__(self, version: str, disabled: bool = False) -> None:
         if not self._initialized:
             self.version = version
-            self._traces_queue = cast("QueueType[ProtoTrace]", Queue())
+            self._traces_queue = Queue()
             self._disabled = disabled
             self._initialized = True
 
@@ -56,23 +53,19 @@ class Telemetry:
     def get_monitoring_header(self) -> str:
         if self._disabled:
             return ""
-        # Get all current traces atomically
         current_traces = []
         while not self._traces_queue.empty():
             try:
                 current_traces.append(self._traces_queue.get_nowait())
-            except Exception:  # Specify the exception type
+            except Exception:
                 break
 
-        # Create monitoring data with the captured traces
         monitoring = ProtoMonitoring()
         library_traces = monitoring.library_traces.add()
         library_traces.library = ProtoLibrary.PROTO_LIBRARY_CONFIDENCE
         library_traces.library_version = self.version
         library_traces.traces.extend(current_traces)
         monitoring.platform = ProtoPlatform.PROTO_PLATFORM_PYTHON
-
-        # Serialize to protobuf and base64 encode
         serialized = monitoring.SerializeToString()
         encoded = base64.b64encode(serialized).decode()
         return encoded

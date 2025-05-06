@@ -24,21 +24,25 @@ class Telemetry:
     _initialized: bool = False
     version: str
     _traces_queue: "QueueType[ProtoTrace]"
+    _disabled: bool
 
-    def __new__(cls, version: str) -> "Telemetry":
+    def __new__(cls, version: str, disabled: bool = False) -> "Telemetry":
         if cls._instance is None:
             cls._instance = super(Telemetry, cls).__new__(cls)
         return cls._instance
 
-    def __init__(self, version: str) -> None:
+    def __init__(self, version: str, disabled: bool = False) -> None:
         if not self._initialized:
             self.version = version
             self._traces_queue = cast("QueueType[ProtoTrace]", Queue())
+            self._disabled = disabled
             self._initialized = True
 
     def add_trace(
         self, trace_id: ProtoTraceId, duration_ms: int, status: ProtoStatus
     ) -> None:
+        if self._disabled:
+            return
         trace = ProtoTrace()
         trace.id = trace_id
         request_trace = ProtoTrace.ProtoRequestTrace()
@@ -48,6 +52,8 @@ class Telemetry:
         self._traces_queue.put(trace)
 
     def get_monitoring_header(self) -> str:
+        if self._disabled:
+            return ""
         # Get all current traces atomically
         current_traces = []
         while not self._traces_queue.empty():

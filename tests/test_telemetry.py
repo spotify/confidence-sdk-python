@@ -17,6 +17,7 @@ ProtoTraceId = ProtoLibraryTraces.ProtoTraceId
 
 class TestTelemetry(unittest.TestCase):
     def setUp(self):
+        # Reset singleton state before each test
         Telemetry._instance = None
         Telemetry._initialized = False
         self.telemetry = Telemetry("1.0.0")
@@ -191,6 +192,35 @@ class TestTelemetry(unittest.TestCase):
             self.assertIsNotNone(header)
             mock_post.assert_not_called()  # No direct HTTP calls should be made
 
+    @patch("requests.post")
+    def test_disabled_telemetry(self, mock_post):
+        # Create a confidence instance with telemetry disabled
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "resolvedFlags": [{"value": True, "variant": "on"}],
+            "resolveToken": "test-token",
+        }
+        mock_response.raise_for_status.return_value = None
+        mock_post.return_value = mock_response
+
+        confidence = Confidence(client_secret="test-secret", region=Region.GLOBAL, disable_telemetry=True)
+
+        # Add a trace and verify it's not added
+        confidence._telemetry.add_trace(
+            ProtoTraceId.PROTO_TRACE_ID_RESOLVE_LATENCY,
+            100,
+            ProtoStatus.PROTO_STATUS_SUCCESS,
+        )
+
+        # Get the header and verify it's empty
+        header = confidence._telemetry.get_monitoring_header()
+        self.assertEqual(header, "")
+
+        # Make a resolve call and verify no telemetry header is sent
+        confidence.resolve_boolean_details("test-flag", False)
+        headers = mock_post.call_args[1]["headers"]
+        self.assertNotIn("X-CONFIDENCE-TELEMETRY", headers)
 
 if __name__ == "__main__":
     unittest.main()

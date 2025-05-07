@@ -8,4 +8,8 @@ We require pull request titles to follow the [Conventional Commits specification
 
 We use "squash merge" and any merge PR title will show up in the changelog based on the title.
 
+Run the following if you need to regenerate the telemetry protobuf code:
 
+```
+./generate_proto.py
+```

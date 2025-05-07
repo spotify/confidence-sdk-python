@@ -9,8 +9,8 @@ async def get_flag():
     random_uuid = uuid.uuid4()
     uuid_string = str(random_uuid)
     confidence = root.with_context({"targeting_key": uuid_string})
-    #confidence.with_context({"app": "python"}).track("navigate", {})
-    #print("Tracked navigate event")
+    # confidence.with_context({"app": "python"}).track("navigate", {})
+    # print("Tracked navigate event")
 
     details = confidence.resolve_string_details("hawkflag.color", "default")
     print(f"Flag value: {details.value}")

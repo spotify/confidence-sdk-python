@@ -59,6 +59,18 @@ confidence.track("event_name", {
 })
 ```
 
+## Telemetry
+
+The SDK includes telemetry functionality that helps monitor SDK performance and usage. By default, telemetry is enabled and collects metrics (anonymously) such as resolve latency and request status. This data is used by the Confidence team to improve the product, and in certain cases it is also available to the SDK adopters.
+
+You can disable telemetry by setting `disable_telemetry=True` when initializing the Confidence client:
+
+```python
+confidence = Confidence("CLIENT_TOKEN",
+    disable_telemetry=True
+)
+```
+
 ## OpenFeature
 
 The library includes a `Provider` for

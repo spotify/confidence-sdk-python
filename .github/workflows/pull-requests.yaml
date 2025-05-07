@@ -19,7 +19,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        container: [ "python:3.8", "python:3.9", "python:3.10", "python:3.11" ]
+        container: [ "python:3.9", "python:3.10", "python:3.11" ]
     container:
       image: ${{ matrix.container }}
 
@@ -64,13 +64,13 @@ jobs:
           .
 
       - name: Run black formatter check
-        run: black --check confidence
+        run: black --check confidence --exclude="telemetry_pb2.py|_version.py"
 
       - name: Run flake8 formatter check
-        run: flake8 confidence
- 
+        run: flake8 confidence --exclude=telemetry_pb2.py,_version.py
+
       - name: Run type linter check
-        run: mypy confidence
+        run: mypy confidence --follow-imports=skip --exclude=telemetry_pb2.py
 
       - name: Run tests with pytest
         run: pytest

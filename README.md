@@ -7,12 +7,12 @@ Python library for [Confidence](https://confidence.spotify.com/).
 ### pip install
 <!---x-release-please-start-version-->
 ```python
-pip install spotify-confidence-sdk==1.2.3
+pip install spotify-confidence-sdk==2.0.0
 ```
 
 #### requirements.txt
 ```python
-spotify-confidence-sdk==1.2.3
+spotify-confidence-sdk==2.0.0
 
 pip install -r requirements.txt
 ```

@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.0](https://github.com/spotify/confidence-sdk-python/compare/v1.2.3...v2.0.0) (2025-05-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* Dropped support for Python 3.8
+
+### ✨ New Features
+
+* Add Telemetry ([#91](https://github.com/spotify/confidence-sdk-python/issues/91)) ([9dba6d6](https://github.com/spotify/confidence-sdk-python/commit/9dba6d662ab8d8f7bb50b72ef8a788d90de15cb9))
+
 ## [1.2.3](https://github.com/spotify/confidence-sdk-python/compare/v1.2.2...v1.2.3) (2025-04-28)
 
 

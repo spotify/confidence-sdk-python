@@ -2,8 +2,6 @@ syntax = "proto3";
 
 package confidence.telemetry.v1;
 
-option go_package = "github.com/spotify/confidence-sdk-go/pkg/confidence";
-
 enum ProtoPlatform {
   PROTO_PLATFORM_UNSPECIFIED = 0;
   PROTO_PLATFORM_JS_WEB = 4;

@@ -59,6 +59,64 @@ confidence.track("event_name", {
 })
 ```
 
+## OpenFeature
+
+The library includes a `Provider` for
+the [OpenFeature Python SDK](https://openfeature.dev/docs/tutorials/getting-started/python), that can be
+used to resolve feature flag values from the Confidence platform.
+
+To learn more about the basic concepts (flags, targeting key, evaluation contexts),
+the [OpenFeature reference documentation](https://openfeature.dev/docs/reference/intro) can be
+useful.
+
+
+## Logging
+
+The SDK includes built-in logging functionality to help with debugging and monitoring. By default, the SDK creates a logger named `confidence_logger` that outputs to the console with DEBUG level logging enabled.
+
+### Default logging behavior
+
+When you create a Confidence client without specifying a logger, debug-level logging is automatically enabled:
+
+```python
+from confidence.confidence import Confidence
+
+# Debug logging is enabled by default
+confidence = Confidence("CLIENT_TOKEN")
+```
+
+This will output log messages such as flag resolution details, error messages, and debug information to help troubleshoot issues.
+
+### Using a custom logger
+
+You can provide your own logger instance to customize the logging behavior:
+
+```python
+import logging
+from confidence.confidence import Confidence
+
+# Create a custom logger with INFO level (less verbose)
+custom_logger = logging.getLogger("my_confidence_logger")
+custom_logger.setLevel(logging.INFO)
+
+confidence = Confidence("CLIENT_TOKEN", logger=custom_logger)
+```
+
+### Disabling debug logging
+
+To reduce log verbosity, you can configure a logger with a higher log level:
+
+```python
+import logging
+from confidence.confidence import Confidence
+
+# Create a logger that only shows warnings and errors
+quiet_logger = logging.getLogger("quiet_confidence_logger")
+quiet_logger.setLevel(logging.WARNING)
+
+confidence = Confidence("CLIENT_TOKEN", logger=quiet_logger)
+```
+
 ## Telemetry
 
 The SDK includes telemetry functionality that helps monitor SDK performance and usage. By default, telemetry is enabled and collects metrics (anonymously) such as resolve latency and request status. This data is used by the Confidence team to improve the product, and in certain cases it is also available to the SDK adopters.
@@ -70,13 +128,3 @@ confidence = Confidence("CLIENT_TOKEN",
     disable_telemetry=True
 )
 ```
-
-## OpenFeature
-
-The library includes a `Provider` for
-the [OpenFeature Python SDK](https://openfeature.dev/docs/tutorials/getting-started/python), that can be
-used to resolve feature flag values from the Confidence platform.
-
-To learn more about the basic concepts (flags, targeting key, evaluation contexts),
-the [OpenFeature reference documentation](https://openfeature.dev/docs/reference/intro) can be
-useful.

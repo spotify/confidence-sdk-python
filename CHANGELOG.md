@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1](https://github.com/spotify/confidence-sdk-python/compare/v2.0.0...v2.0.1) (2025-08-04)
+
+
+### 🐛 Bug Fixes
+
+* logger should not override level ([#93](https://github.com/spotify/confidence-sdk-python/issues/93)) ([887464b](https://github.com/spotify/confidence-sdk-python/commit/887464b40a219ec7b88a45da44538bd5d07082c7))
+
 ## [2.0.0](https://github.com/spotify/confidence-sdk-python/compare/v1.2.3...v2.0.0) (2025-05-07)
 
 

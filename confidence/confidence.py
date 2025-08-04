@@ -182,7 +182,8 @@ class Confidence:
 
     def _setup_logger(self, logger: logging.Logger) -> None:
         if logger is not None:
-            logger.setLevel(logging.DEBUG)
+            if logger.level == logging.NOTSET:
+                logger.setLevel(logging.DEBUG)
             formatter = logging.Formatter(
                 "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
             )

@@ -194,7 +194,9 @@ class TestTelemetry(unittest.TestCase):
         mock_response.raise_for_status.return_value = None
         mock_post.return_value = mock_response
 
-        confidence = Confidence(client_secret="test-secret", region=Region.GLOBAL, disable_telemetry=True)
+        confidence = Confidence(
+            client_secret="test-secret", region=Region.GLOBAL, disable_telemetry=True
+        )
 
         # Add a trace and verify it's not added
         confidence._telemetry.add_trace(
@@ -241,7 +243,9 @@ class TestTelemetry(unittest.TestCase):
         self.assertIn("X-CONFIDENCE-TELEMETRY", headers1)
         monitoring1 = ProtoMonitoring()
         print(f"Decoding telemetry header: {headers1['X-CONFIDENCE-TELEMETRY']}")
-        monitoring1.ParseFromString(base64.b64decode(headers1["X-CONFIDENCE-TELEMETRY"]))
+        monitoring1.ParseFromString(
+            base64.b64decode(headers1["X-CONFIDENCE-TELEMETRY"])
+        )
         traces1 = monitoring1.library_traces[0].traces
         print(f"First request traces: {traces1}")
         self.assertEqual(len(traces1), 0)
@@ -251,9 +255,12 @@ class TestTelemetry(unittest.TestCase):
         self.assertIn("X-CONFIDENCE-TELEMETRY", headers2)
         monitoring2 = ProtoMonitoring()
         print(f"Decoding telemetry header: {headers1['X-CONFIDENCE-TELEMETRY']}")
-        monitoring2.ParseFromString(base64.b64decode(headers2["X-CONFIDENCE-TELEMETRY"]))
+        monitoring2.ParseFromString(
+            base64.b64decode(headers2["X-CONFIDENCE-TELEMETRY"])
+        )
         traces2 = monitoring2.library_traces[0].traces
         self.assertEqual(len(traces2), 1)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -12,13 +12,11 @@ the [OpenFeature reference documentation](https://openfeature.dev/docs/reference
 <!---x-release-please-start-version-->
 ```python
 pip install spotify-confidence-sdk==2.0.1
-pip install openfeature-sdk==0.4.2
 ```
 
 #### requirements.txt
 ```python
 spotify-confidence-sdk==2.0.1
-openfeature-sdk==0.4.2
 
 pip install -r requirements.txt
 ```

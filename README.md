@@ -33,7 +33,7 @@ from confidence.confidence import Confidence
 from openfeature import api
 from confidence.openfeature_provider import ConfidenceOpenFeatureProvider
 
-provider = ConfidenceOpenFeatureProvider(Confidence(api_client, timeout_ms=100))
+provider = ConfidenceOpenFeatureProvider(Confidence(api_client, timeout_ms=500))
 api.set_provider(provider)
 ```
 

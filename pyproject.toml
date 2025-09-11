@@ -42,7 +42,8 @@ dev = [
     "flake8==6.1.0",
     "requests_mock==1.11.0",
     "setuptools_scm==8.0.4",
-    "mypy==1.5.1"
+    "mypy==1.5.1",
+    "python-dotenv==1.0.1"
 ]
 
 [project.urls]

@@ -5,4 +5,4 @@ confidence_openfeature_provider.egg-info/
 dist/
 build/
 confidence/_version.py
-
+.env

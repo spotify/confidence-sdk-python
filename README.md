@@ -1,6 +1,10 @@
 # Python Confidence SDK
 
-Python library for [Confidence](https://confidence.spotify.com/).
+This repo contains the [Confidence](https://confidence.spotify.com/) Python SDK and the Confidence OpenFeature provider. We recommend using the [OpenFeature Python SDK](https://github.com/open-feature/python-sdk) to access Confidence feature flags.
+
+
+To learn more about the basic concepts (flags, targeting key, evaluation contexts),
+the [OpenFeature reference documentation](https://openfeature.dev/docs/reference/intro) or the [getting started guide](https://openfeature.dev/docs/tutorials/getting-started/python) can be useful.
 
 ## Install
 
@@ -20,18 +24,31 @@ pip install -r requirements.txt
 
 ## Usage
 
-### Resolving flags
+### Creating the SDK
 
-Flag values are evaluated remotely and returned to the application:
+The OpenFeature provider is created by using the SDK. More details on how to setup the SDK can be found [here](#configuration-options).
 
 ```python
 from confidence.confidence import Confidence
+from openfeature import api
+from confidence.openfeature_provider import ConfidenceOpenFeatureProvider
 
-root_confidence = Confidence("CLIENT_TOKEN")
-confidence = root_confidence.with_context({"user_id": "some-user-id"})
-default_value = False
-flag_details = confidence.resolve_boolean_details("flag-name.property-name", default_value)
-print(flag_details)
+provider = ConfidenceOpenFeatureProvider(Confidence(api_client, timeout_ms=500))
+api.set_provider(provider)
+```
+
+### Resolving flags
+
+Flag values are evaluated remotely and returned to the application by using the OpenFeature `client`:
+
+```python
+from openfeature import api
+
+client = api.get_client()
+user_identifier = "" # your identifier for a specific user
+
+flag_value = client.get_string_value("flag-name.property-name", "my-default-value", api.EvaluationContext(attributes={"user_id": user_identifier}))
+print(f"Flag value: {flag_value}")
 ```
 
 ### Configuration options
@@ -41,34 +58,13 @@ The SDK can be configured with several options:
 ```python
 from confidence.confidence import Confidence, Region
 
-# Configure timeout for network requests
 confidence = Confidence(
     client_secret="CLIENT_TOKEN",
     region=Region.EU,  # Optional: defaults to GLOBAL
-    timeout_ms=5000  # Optional: specify timeout in milliseconds for network requests (default: 10000ms)
+    timeout_ms=5000,  # Optional: specify timeout in milliseconds for network requests (default: 10000ms)
+    custom_resolve_base_url="https://my-custom-endpoint.org" # we will append /v1/flags:resolve to this for the resolve endpoint.
 )
 ```
-
-### Tracking events
-
-Events are emitted to the Confidence backend:
-
-```python
-confidence.track("event_name", {
-	"field_1": False
-})
-```
-
-## OpenFeature
-
-The library includes a `Provider` for
-the [OpenFeature Python SDK](https://openfeature.dev/docs/tutorials/getting-started/python), that can be
-used to resolve feature flag values from the Confidence platform.
-
-To learn more about the basic concepts (flags, targeting key, evaluation contexts),
-the [OpenFeature reference documentation](https://openfeature.dev/docs/reference/intro) can be
-useful.
-
 
 ## Logging
 

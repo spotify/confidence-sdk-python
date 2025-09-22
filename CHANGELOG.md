@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.0.2](https://github.com/spotify/confidence-sdk-python/compare/v2.0.1...v2.0.2) (2025-09-22)
+
+
+### 🐛 Bug Fixes
+
+* **deps:** introduce flexible protobuf version range ([#102](https://github.com/spotify/confidence-sdk-python/issues/102)) ([edfc4ed](https://github.com/spotify/confidence-sdk-python/commit/edfc4eda5e4fe03a88a46bf264b202736c3c26ad))
+* **deps:** update typing_extensions to flexible range ([#99](https://github.com/spotify/confidence-sdk-python/issues/99)) ([6a03790](https://github.com/spotify/confidence-sdk-python/commit/6a03790af0f9f166c62175d5237a170155d50717)) 
+
+### 📚 Documentation
+
+* restructure to focus on Openfeature ([#97](https://github.com/spotify/confidence-sdk-python/issues/97)) ([a60cd7d](https://github.com/spotify/confidence-sdk-python/commit/a60cd7df4c86c0ef3ba420bde6c5ffe7db86fd41))
+
 ## [2.0.1](https://github.com/spotify/confidence-sdk-python/compare/v2.0.0...v2.0.1) (2025-08-04)
 
 

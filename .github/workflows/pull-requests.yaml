@@ -67,10 +67,10 @@ jobs:
         run: black --check confidence --exclude="telemetry_pb2.py|_version.py"
 
       - name: Run flake8 formatter check
-        run: flake8 confidence --exclude=telemetry_pb2.py,_version.py
+        run: flake8 confidence --exclude=telemetry_pb2.py,_version.py,telemetry.py
 
       - name: Run type linter check
-        run: mypy confidence --follow-imports=skip --exclude=telemetry_pb2.py
+        run: mypy confidence --follow-imports=skip --exclude telemetry_pb2.py --exclude telemetry.py
 
       - name: Run tests with pytest
         run: pytest

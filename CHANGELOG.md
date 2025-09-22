@@ -6,7 +6,7 @@
 ### 🐛 Bug Fixes
 
 * **deps:** introduce flexible protobuf version range ([#102](https://github.com/spotify/confidence-sdk-python/issues/102)) ([edfc4ed](https://github.com/spotify/confidence-sdk-python/commit/edfc4eda5e4fe03a88a46bf264b202736c3c26ad))
-
+* **deps:** update typing_extensions to flexible range ([#99](https://github.com/spotify/confidence-sdk-python/issues/99)) ([6a03790](https://github.com/spotify/confidence-sdk-python/commit/6a03790af0f9f166c62175d5237a170155d50717)) 
 
 ### 📚 Documentation
 

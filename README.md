@@ -14,11 +14,39 @@ the [OpenFeature reference documentation](https://openfeature.dev/docs/reference
 pip install spotify-confidence-sdk==2.0.1
 ```
 
-#### requirements.txt
-```python
-spotify-confidence-sdk==2.0.1
+This installs the full SDK including telemetry support and is the suggested .
 
-pip install -r requirements.txt
+#### Minimal installation (without telemetry)
+For environments where you cannot use protobuf, you can install without protobuf (which disables telemetry):
+
+**Option 1: Manual installation**
+```bash
+pip install spotify-confidence-sdk==2.0.1 --no-deps
+pip install requests==2.32.4 openfeature-sdk==0.4.2 typing_extensions==4.9.0 httpx==0.27.2
+```
+
+**Option 2: Using requirements file**
+```bash
+pip install --no-deps spotify-confidence-sdk==2.0.1
+pip install -r requirements-minimal.txt
+```
+
+#### requirements.txt examples
+
+**Full installation (recommended):**
+```txt
+# requirements.txt
+spotify-confidence-sdk==2.0.1
+```
+
+**Minimal installation:**
+```txt
+# requirements-minimal.txt
+requests==2.32.4
+openfeature-sdk==0.4.2
+typing_extensions==4.9.0
+httpx==0.27.2
+# Install with: pip install --no-deps spotify-confidence-sdk==2.0.1 && pip install -r requirements-minimal.txt
 ```
 <!---x-release-please-end-->
 
@@ -117,7 +145,15 @@ confidence = Confidence("CLIENT_TOKEN", logger=quiet_logger)
 
 The SDK includes telemetry functionality that helps monitor SDK performance and usage. By default, telemetry is enabled and collects metrics (anonymously) such as resolve latency and request status. This data is used by the Confidence team to improve the product, and in certain cases it is also available to the SDK adopters.
 
-You can disable telemetry by setting `disable_telemetry=True` when initializing the Confidence client:
+### Telemetry behavior
+
+- **Default installation**: Telemetry is enabled automatically when protobuf dependencies are available
+- **Minimal installation**: Telemetry is automatically disabled when protobuf is not installed (see [minimal installation](#minimal-installation-without-telemetry))
+- **Manual control**: You can explicitly disable telemetry even when dependencies are available
+
+### Disabling telemetry
+
+You can explicitly disable telemetry by setting `disable_telemetry=True` when initializing the Confidence client:
 
 ```python
 confidence = Confidence("CLIENT_TOKEN",

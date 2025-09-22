@@ -1,0 +1,18 @@
+# Minimal installation without telemetry (protobuf)
+# Install with: pip install --no-deps spotify-confidence-sdk==2.0.1 && pip install -r requirements-minimal.txt
+
+# Required dependencies (excluding protobuf)
+requests==2.32.4
+openfeature-sdk==0.4.2
+typing_extensions==4.9.0
+httpx==0.27.2
+
+# Transitive dependencies
+anyio
+certifi
+httpcore==1.*
+idna
+sniffio
+charset_normalizer<4,>=2
+urllib3<3,>=1.21.1
+h11>=0.16

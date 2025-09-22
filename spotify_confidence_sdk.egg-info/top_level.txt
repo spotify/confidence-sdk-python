@@ -1,5 +1,0 @@
-build
-confidence
-dist
-htmlcov
-tests

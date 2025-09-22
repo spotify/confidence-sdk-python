@@ -6,3 +6,4 @@ dist/
 build/
 confidence/_version.py
 .env
+.claude/

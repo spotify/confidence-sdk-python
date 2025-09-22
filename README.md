@@ -11,7 +11,7 @@ the [OpenFeature reference documentation](https://openfeature.dev/docs/reference
 ### pip install
 <!---x-release-please-start-version-->
 ```python
-pip install spotify-confidence-sdk==2.0.2
+pip install spotify-confidence-sdk==2.1.0
 ```
 
 This installs the full SDK including telemetry support and is the suggested .
@@ -20,14 +20,14 @@ This installs the full SDK including telemetry support and is the suggested .
 For environments where you cannot use protobuf, you can install without protobuf (which disables telemetry):
 
 ```bash
-pip install spotify-confidence-sdk==2.0.1 --no-deps
-pip install requests==2.32.4 openfeature-sdk==0.4.2 typing_extensions==4.9.0 httpx==0.27.2
+pip install spotify-confidence-sdk==2.1.0 --no-deps
+pip install requests==2.1.0 openfeature-sdk==0.4.2 typing_extensions==4.9.0 httpx==0.27.2
 ```
 
 #### requirements.txt
 ```txt
 # Full installation (recommended)
-spotify-confidence-sdk==2.0.2
+spotify-confidence-sdk==2.1.0
 
 pip install -r requirements.txt
 ```

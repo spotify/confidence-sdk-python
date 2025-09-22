@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.0](https://github.com/spotify/confidence-sdk-python/compare/v2.0.2...v2.1.0) (2025-09-22)
+
+
+### ✨ New Features
+
+* make protobuf dependency optional for telemetry ([#100](https://github.com/spotify/confidence-sdk-python/issues/100)) ([991d518](https://github.com/spotify/confidence-sdk-python/commit/991d518232e4582d5d032523182f4aa29974f7c4))
+
 ## [2.0.2](https://github.com/spotify/confidence-sdk-python/compare/v2.0.1...v2.0.2) (2025-09-22)
 
 

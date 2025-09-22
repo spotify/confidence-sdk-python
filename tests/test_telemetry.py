@@ -2,17 +2,28 @@ import unittest
 import base64
 import time
 from unittest.mock import patch, MagicMock
-from confidence.telemetry_pb2 import ProtoMonitoring, ProtoLibraryTraces, ProtoPlatform
-from confidence.telemetry import Telemetry
+from confidence.telemetry import Telemetry, PROTOBUF_AVAILABLE
 from confidence.confidence import Confidence, Region
 import requests
 
-# Get the nested classes from ProtoLibraryTraces
-ProtoTrace = ProtoLibraryTraces.ProtoTrace
-ProtoRequestTrace = ProtoTrace.ProtoRequestTrace
-ProtoStatus = ProtoRequestTrace.ProtoStatus
-ProtoLibrary = ProtoLibraryTraces.ProtoLibrary
-ProtoTraceId = ProtoLibraryTraces.ProtoTraceId
+# Import protobuf types if available, otherwise use fallback types
+if PROTOBUF_AVAILABLE:
+    from confidence.telemetry_pb2 import ProtoMonitoring, ProtoLibraryTraces, ProtoPlatform
+    # Get the nested classes from ProtoLibraryTraces
+    ProtoTrace = ProtoLibraryTraces.ProtoTrace
+    ProtoRequestTrace = ProtoTrace.ProtoRequestTrace
+    ProtoStatus = ProtoRequestTrace.ProtoStatus
+    ProtoLibrary = ProtoLibraryTraces.ProtoLibrary
+    ProtoTraceId = ProtoLibraryTraces.ProtoTraceId
+else:
+    from confidence.telemetry import (
+        ProtoLibrary, ProtoTraceId, ProtoStatus, ProtoPlatform, ProtoTrace
+    )
+
+
+def requires_protobuf(test_func):
+    """Decorator to skip tests that require protobuf when it's not available"""
+    return unittest.skipUnless(PROTOBUF_AVAILABLE, "protobuf not available")(test_func)
 
 
 class TestTelemetry(unittest.TestCase):
@@ -30,21 +41,26 @@ class TestTelemetry(unittest.TestCase):
         )
 
         header = telemetry.get_monitoring_header()
-        monitoring = ProtoMonitoring()
-        monitoring.ParseFromString(base64.b64decode(header))
 
-        self.assertEqual(monitoring.platform, ProtoPlatform.PROTO_PLATFORM_PYTHON)
-        self.assertEqual(len(monitoring.library_traces), 1)
+        if PROTOBUF_AVAILABLE:
+            monitoring = ProtoMonitoring()
+            monitoring.ParseFromString(base64.b64decode(header))
 
-        library_trace = monitoring.library_traces[0]
-        self.assertEqual(library_trace.library, ProtoLibrary.PROTO_LIBRARY_CONFIDENCE)
-        self.assertEqual(library_trace.library_version, "1.0.0")
+            self.assertEqual(monitoring.platform, ProtoPlatform.PROTO_PLATFORM_PYTHON)
+            self.assertEqual(len(monitoring.library_traces), 1)
 
-        self.assertEqual(len(library_trace.traces), 1)
-        trace = library_trace.traces[0]
-        self.assertEqual(trace.id, ProtoTraceId.PROTO_TRACE_ID_RESOLVE_LATENCY)
-        self.assertEqual(trace.request_trace.millisecond_duration, 100)
-        self.assertEqual(trace.request_trace.status, ProtoStatus.PROTO_STATUS_SUCCESS)
+            library_trace = monitoring.library_traces[0]
+            self.assertEqual(library_trace.library, ProtoLibrary.PROTO_LIBRARY_CONFIDENCE)
+            self.assertEqual(library_trace.library_version, "1.0.0")
+
+            self.assertEqual(len(library_trace.traces), 1)
+            trace = library_trace.traces[0]
+            self.assertEqual(trace.id, ProtoTraceId.PROTO_TRACE_ID_RESOLVE_LATENCY)
+            self.assertEqual(trace.request_trace.millisecond_duration, 100)
+            self.assertEqual(trace.request_trace.status, ProtoStatus.PROTO_STATUS_SUCCESS)
+        else:
+            # When protobuf is not available, telemetry should return empty header
+            self.assertEqual(header, "")
 
     def test_traces_are_consumed(self):
         telemetry = Telemetry("1.0.0")

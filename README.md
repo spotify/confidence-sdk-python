@@ -11,7 +11,7 @@ the [OpenFeature reference documentation](https://openfeature.dev/docs/reference
 ### pip install
 <!---x-release-please-start-version-->
 ```python
-pip install spotify-confidence-sdk==2.0.1
+pip install spotify-confidence-sdk==2.0.2
 ```
 
 This installs the full SDK including telemetry support and is the suggested .
@@ -27,7 +27,9 @@ pip install requests==2.32.4 openfeature-sdk==0.4.2 typing_extensions==4.9.0 htt
 #### requirements.txt
 ```txt
 # Full installation (recommended)
-spotify-confidence-sdk==2.0.1
+spotify-confidence-sdk==2.0.2
+
+pip install -r requirements.txt
 ```
 <!---x-release-please-end-->
 

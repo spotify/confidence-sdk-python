@@ -19,34 +19,15 @@ This installs the full SDK including telemetry support and is the suggested .
 #### Minimal installation (without telemetry)
 For environments where you cannot use protobuf, you can install without protobuf (which disables telemetry):
 
-**Option 1: Manual installation**
 ```bash
 pip install spotify-confidence-sdk==2.0.1 --no-deps
 pip install requests==2.32.4 openfeature-sdk==0.4.2 typing_extensions==4.9.0 httpx==0.27.2
 ```
 
-**Option 2: Using requirements file**
-```bash
-pip install --no-deps spotify-confidence-sdk==2.0.1
-pip install -r requirements-minimal.txt
-```
-
-#### requirements.txt examples
-
-**Full installation (recommended):**
+#### requirements.txt
 ```txt
-# requirements.txt
+# Full installation (recommended)
 spotify-confidence-sdk==2.0.1
-```
-
-**Minimal installation:**
-```txt
-# requirements-minimal.txt
-requests==2.32.4
-openfeature-sdk==0.4.2
-typing_extensions==4.9.0
-httpx==0.27.2
-# Install with: pip install --no-deps spotify-confidence-sdk==2.0.1 && pip install -r requirements-minimal.txt
 ```
 <!---x-release-please-end-->
 

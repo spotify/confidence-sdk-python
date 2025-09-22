@@ -1,0 +1,15 @@
+requests==2.32.4
+openfeature-sdk==0.4.2
+typing_extensions==4.9.0
+httpx==0.27.2
+protobuf==5.29.5
+
+[dev]
+pytest==7.4.2
+pytest-mock==3.11.1
+black==23.9.1
+flake8==6.1.0
+requests_mock==1.11.0
+setuptools_scm==8.0.4
+mypy==1.5.1
+python-dotenv==1.0.1

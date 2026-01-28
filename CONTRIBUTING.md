@@ -1,4 +1,17 @@
-## Contributing
+# Contributing
+
+## Getting Involved
+
+We welcome contributions and are happy to discuss ideas, answer questions, and help you get started.
+
+**Before opening a pull request**, please open an issue or start a discussion with the maintainers. This helps us:
+- Ensure the change aligns with the project's direction
+- Avoid duplicate or conflicting work
+- Provide guidance on implementation approach
+
+We're friendly and responsive—don't hesitate to reach out!
+
+## Development
 
 We ask you to write well covered unit tests with your changes and please make sure you use `black` and `flake8` to lint your code before making a PR. There are CI checks that will fail otherwise.
 

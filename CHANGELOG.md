@@ -1,5 +1,27 @@
 # Changelog
 
+## [2.1.0](https://github.com/spotify/confidence-sdk-python/compare/v2.0.2...v2.1.0) (2026-03-09)
+
+
+### 🐛 Bug Fixes
+
+* handle integer flag values serialized as floats ([#105](https://github.com/spotify/confidence-sdk-python/issues/105)) ([8b73f3f](https://github.com/spotify/confidence-sdk-python/commit/8b73f3f9d9db6944f891637ee284fffc42254713))
+
+
+### ✨ New Features
+
+* make protobuf dependency optional for telemetry ([#100](https://github.com/spotify/confidence-sdk-python/issues/100)) ([991d518](https://github.com/spotify/confidence-sdk-python/commit/991d518232e4582d5d032523182f4aa29974f7c4))
+
+
+### 🧹 Chore
+
+* update codeowners ([#106](https://github.com/spotify/confidence-sdk-python/issues/106)) ([7d067c7](https://github.com/spotify/confidence-sdk-python/commit/7d067c7ff2f75dd6f64c4887c6f92f8a7642bc0b))
+
+
+### 📚 Documentation
+
+* add getting involved section to contribution guidelines ([#104](https://github.com/spotify/confidence-sdk-python/issues/104)) ([c070d48](https://github.com/spotify/confidence-sdk-python/commit/c070d487446f71446ad6407501be48d3238ed3af))
+
 ## [2.0.2](https://github.com/spotify/confidence-sdk-python/compare/v2.0.1...v2.0.2) (2025-09-22)
 
 

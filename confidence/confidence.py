@@ -53,11 +53,7 @@ def primitive_matches(value: FieldType, value_type: Type[Primitive]) -> bool:
     return (
         value_type is None
         or (value_type is int and isinstance(value, int))
-        or (
-            value_type is int
-            and isinstance(value, float)
-            and value == int(value)
-        )
+        or (value_type is int and isinstance(value, float) and value == int(value))
         or (value_type is float and isinstance(value, (float, int)))
         or (value_type is str and isinstance(value, str))
         or (value_type is bool and isinstance(value, bool))

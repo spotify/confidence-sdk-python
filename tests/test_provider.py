@@ -243,6 +243,24 @@ class TestMyProvider(unittest.IsolatedAsyncioTestCase):
                 last_request.json()["evaluationContext"].get("connection"), "wifi"
             )
 
+    def test_resolve_integer_from_float_value(self):
+        ctx = EvaluationContext(targeting_key="boop")
+        with requests_mock.Mocker() as mock:
+            mock.post(
+                "https://resolver.confidence.dev/v1/flags:resolve",
+                json=INTEGER_AS_FLOAT_FLAG_RESOLVE,
+            )
+            result = self.provider.resolve_integer_details(
+                flag_key="test-flag.myinteger",
+                default_value=-1,
+                evaluation_context=ctx,
+            )
+
+            self.assertEqual(result.reason, Reason.TARGETING_MATCH)
+            self.assertEqual(result.flag_metadata["flag_key"], "test-flag.myinteger")
+            self.assertEqual(result.value, 400)
+            self.assertIsInstance(result.value, int)
+
     def test_no_segment_match(self):
         ctx = EvaluationContext(attributes={"connection": "wifi"})
         with requests_mock.Mocker() as mock:
@@ -295,6 +313,20 @@ EXPECTED_REQUEST_PAYLOAD = json.loads(
    }
 }"""
 )
+
+INTEGER_AS_FLOAT_FLAG_RESOLVE = {
+    "resolvedFlags": [
+        {
+            "flag": "flags/test-flag",
+            "variant": "flags/test-flag/variants/variant-1",
+            "value": {"myinteger": 400.0},
+            "flagSchema": {"schema": {"myinteger": {"intSchema": {}}}},
+            "reason": "RESOLVE_REASON_MATCH",
+            "shouldApply": True,
+        }
+    ],
+    "resolveToken": "token1",
+}
 
 SUCCESSFUL_FLAG_RESOLVE = json.loads(
     """{

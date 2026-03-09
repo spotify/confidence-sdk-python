@@ -431,6 +431,119 @@ class TestConfidence(unittest.IsolatedAsyncioTestCase):
             _, kwargs = mock_post.call_args
             self.assertEqual(kwargs["timeout"], DEFAULT_TIMEOUT_MS / 1000.0)
 
+    def test_resolve_integer_from_float_value(self):
+        """Test that an integer flag value serialized as 400.0 (float in JSON)
+        with intSchema can be correctly resolved as an integer."""
+        with requests_mock.Mocker() as mock:
+            mock.post(
+                "https://resolver.confidence.dev/v1/flags:resolve",
+                json=INTEGER_AS_FLOAT_FLAG_RESOLVE,
+            )
+            result = self.confidence.resolve_integer_details(
+                flag_key="test-flag.myinteger",
+                default_value=-1,
+            )
+
+            self.assertEqual(result.reason, Reason.TARGETING_MATCH)
+            self.assertEqual(result.flag_metadata["flag_key"], "test-flag.myinteger")
+            self.assertEqual(result.value, 400)
+            self.assertIsInstance(result.value, int)
+
+    async def test_resolve_integer_from_float_value_async(self):
+        mock_response = httpx.Response(
+            status_code=200,
+            json=INTEGER_AS_FLOAT_FLAG_RESOLVE,
+            request=httpx.Request(
+                "POST", "https://resolver.confidence.dev/v1/flags:resolve"
+            ),
+        )
+
+        with patch("httpx.AsyncClient.post", return_value=mock_response):
+            result = await self.confidence.resolve_integer_details_async(
+                flag_key="test-flag.myinteger", default_value=-1
+            )
+
+            self.assertEqual(result.reason, Reason.TARGETING_MATCH)
+            self.assertEqual(result.flag_metadata["flag_key"], "test-flag.myinteger")
+            self.assertEqual(result.value, 400)
+            self.assertIsInstance(result.value, int)
+
+    def test_resolve_integer_from_negative_float_value(self):
+        with requests_mock.Mocker() as mock:
+            mock.post(
+                "https://resolver.confidence.dev/v1/flags:resolve",
+                json=_make_int_flag_resolve(-5.0),
+            )
+            result = self.confidence.resolve_integer_details(
+                flag_key="test-flag.myinteger",
+                default_value=-1,
+            )
+
+            self.assertEqual(result.reason, Reason.TARGETING_MATCH)
+            self.assertEqual(result.value, -5)
+            self.assertIsInstance(result.value, int)
+
+    def test_resolve_integer_from_zero_float_value(self):
+        with requests_mock.Mocker() as mock:
+            mock.post(
+                "https://resolver.confidence.dev/v1/flags:resolve",
+                json=_make_int_flag_resolve(0.0),
+            )
+            result = self.confidence.resolve_integer_details(
+                flag_key="test-flag.myinteger",
+                default_value=-1,
+            )
+
+            self.assertEqual(result.reason, Reason.TARGETING_MATCH)
+            self.assertEqual(result.value, 0)
+            self.assertIsInstance(result.value, int)
+
+    def test_resolve_integer_rejects_non_whole_float(self):
+        with requests_mock.Mocker() as mock:
+            mock.post(
+                "https://resolver.confidence.dev/v1/flags:resolve",
+                json=_make_int_flag_resolve(400.5),
+            )
+            result = self.confidence.resolve_integer_details(
+                flag_key="test-flag.myinteger",
+                default_value=-1,
+            )
+
+            self.assertEqual(result.reason, Reason.ERROR)
+            self.assertEqual(result.value, -1)
+            self.assertEqual(result.error_code, ErrorCode.GENERAL)
+
+    def test_resolve_float_from_integer_value(self):
+        with requests_mock.Mocker() as mock:
+            mock.post(
+                "https://resolver.confidence.dev/v1/flags:resolve",
+                json=FLOAT_AS_INTEGER_FLAG_RESOLVE,
+            )
+            result = self.confidence.resolve_float_details(
+                flag_key="test-flag.mydouble",
+                default_value=-1.0,
+            )
+
+            self.assertEqual(result.reason, Reason.TARGETING_MATCH)
+            self.assertEqual(result.value, 42)
+
+    async def test_resolve_float_from_integer_value_async(self):
+        mock_response = httpx.Response(
+            status_code=200,
+            json=FLOAT_AS_INTEGER_FLAG_RESOLVE,
+            request=httpx.Request(
+                "POST", "https://resolver.confidence.dev/v1/flags:resolve"
+            ),
+        )
+
+        with patch("httpx.AsyncClient.post", return_value=mock_response):
+            result = await self.confidence.resolve_float_details_async(
+                flag_key="test-flag.mydouble", default_value=-1.0
+            )
+
+            self.assertEqual(result.reason, Reason.TARGETING_MATCH)
+            self.assertEqual(result.value, 42)
+
     def test_handle_actual_timeout(self):
         with patch("requests.post") as mock_post:
             # Simulate a timeout by raising the Timeout exception
@@ -513,6 +626,38 @@ EXPECTED_REQUEST_PAYLOAD = json.loads(
    }
 }"""
 )
+
+def _make_int_flag_resolve(value):
+    return {
+        "resolvedFlags": [
+            {
+                "flag": "flags/test-flag",
+                "variant": "flags/test-flag/variants/variant-1",
+                "value": {"myinteger": value},
+                "flagSchema": {"schema": {"myinteger": {"intSchema": {}}}},
+                "reason": "RESOLVE_REASON_MATCH",
+                "shouldApply": True,
+            }
+        ],
+        "resolveToken": "token1",
+    }
+
+
+INTEGER_AS_FLOAT_FLAG_RESOLVE = _make_int_flag_resolve(400.0)
+
+FLOAT_AS_INTEGER_FLAG_RESOLVE = {
+    "resolvedFlags": [
+        {
+            "flag": "flags/test-flag",
+            "variant": "flags/test-flag/variants/variant-1",
+            "value": {"mydouble": 42},
+            "flagSchema": {"schema": {"mydouble": {"doubleSchema": {}}}},
+            "reason": "RESOLVE_REASON_MATCH",
+            "shouldApply": True,
+        }
+    ],
+    "resolveToken": "token1",
+}
 
 SUCCESSFUL_FLAG_RESOLVE = json.loads(
     """{

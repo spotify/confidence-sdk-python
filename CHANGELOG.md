@@ -1,5 +1,16 @@
 # Changelog
 
+## [3.0.0](https://github.com/spotify/confidence-sdk-python/compare/v2.1.0...v3.0.0) (2026-04-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* Dropped support for Python 3.9
+
+### 🧹 Chore
+
+* update requests to &gt;=2.33.1 for CVE-2026-25645 ([#107](https://github.com/spotify/confidence-sdk-python/issues/107)) ([2d27b72](https://github.com/spotify/confidence-sdk-python/commit/2d27b72fb9f957669b424c41ddab8bab06c57e1f))
+
 ## [2.1.0](https://github.com/spotify/confidence-sdk-python/compare/v2.0.2...v2.1.0) (2026-03-09)
 
 

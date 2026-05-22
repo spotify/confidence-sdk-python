@@ -25,7 +25,7 @@ jobs:
 
     steps:
       - name: Check out src from Git
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           fetch-depth: 0 # this (and below) is needed to have setuptools_scm report the correct version
           fetch-tags: true
@@ -88,13 +88,13 @@ jobs:
 
     steps:
       - name: Check out src from Git
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           fetch-depth: 0
           fetch-tags: true
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@7f4fc3e22c37d6ff65e88745f38bd3157c663f7c # v4
         with:
           python-version: ${{ matrix.python-version }}
 

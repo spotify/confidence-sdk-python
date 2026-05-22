@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.1](https://github.com/spotify/confidence-sdk-python/compare/v3.0.0...v3.0.1) (2026-05-22)
+
+
+### 🐛 Bug Fixes
+
+* **deps:** relax httpx version pin to &gt;=0.27.2,&lt;1.0.0 ([#112](https://github.com/spotify/confidence-sdk-python/issues/112)) ([b614d51](https://github.com/spotify/confidence-sdk-python/commit/b614d5151bdcb3f71a52f498da16d277d67581bc))
+
 ## [3.0.0](https://github.com/spotify/confidence-sdk-python/compare/v2.1.0...v3.0.0) (2026-04-09)
 
 

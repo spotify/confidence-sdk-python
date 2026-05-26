@@ -111,7 +111,9 @@ class Confidence:
         self._apply_on_resolve = apply_on_resolve
         self._timeout_ms = timeout_ms
         self.logger = logger
-        self.async_client = async_client if async_client is not None else httpx.AsyncClient()
+        self.async_client = (
+            async_client if async_client is not None else httpx.AsyncClient()
+        )
         self._setup_logger(logger)
         self._custom_resolve_base_url = custom_resolve_base_url
         self._telemetry = Telemetry(__version__, disabled=disable_telemetry)

@@ -77,8 +77,6 @@ class ResolveResult(object):
 
 
 class Confidence:
-    context: Dict[str, FieldType] = {}
-
     def put_context(self, key: str, value: FieldType) -> None:
         self.context[key] = value
 
@@ -103,16 +101,19 @@ class Confidence:
         custom_resolve_base_url: Optional[str] = None,
         timeout_ms: Optional[int] = DEFAULT_TIMEOUT_MS,
         logger: logging.Logger = logging.getLogger("confidence_logger"),
-        async_client: httpx.AsyncClient = httpx.AsyncClient(),
+        async_client: Optional[httpx.AsyncClient] = None,
         disable_telemetry: bool = False,
     ):
+        self.context: Dict[str, FieldType] = {}
         self._client_secret = client_secret
         self._region = region
         self._api_endpoint = region.endpoint()
         self._apply_on_resolve = apply_on_resolve
         self._timeout_ms = timeout_ms
         self.logger = logger
-        self.async_client = async_client
+        self.async_client = (
+            async_client if async_client is not None else httpx.AsyncClient()
+        )
         self._setup_logger(logger)
         self._custom_resolve_base_url = custom_resolve_base_url
         self._telemetry = Telemetry(__version__, disabled=disable_telemetry)

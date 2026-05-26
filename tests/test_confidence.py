@@ -589,6 +589,15 @@ class TestConfidence(unittest.IsolatedAsyncioTestCase):
             self.assertIsNone(result.variant)
             self.assertEqual(result.error_code, ErrorCode.TIMEOUT)
 
+    def test_context_is_isolated_per_instance(self):
+        a = Confidence(client_secret="test")
+        b = Confidence(client_secret="test")
+
+        a.put_context("user", "alice")
+
+        self.assertEqual(a.context, {"user": "alice"})
+        self.assertEqual(b.context, {})
+
     if __name__ == "__main__":
         unittest.main()
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.2](https://github.com/spotify/confidence-sdk-python/compare/v3.0.1...v3.0.2) (2026-05-26)
+
+
+### 🐛 Bug Fixes
+
+* isolate context dict per Confidence instance to prevent shared mutable state ([#115](https://github.com/spotify/confidence-sdk-python/issues/115)) ([3fd546f](https://github.com/spotify/confidence-sdk-python/commit/3fd546f86e6fe1a3d3edaf34bf94f226b451ca5f))
+
 ## [3.0.1](https://github.com/spotify/confidence-sdk-python/compare/v3.0.0...v3.0.1) (2026-05-22)
 
 

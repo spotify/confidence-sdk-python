@@ -16,11 +16,12 @@ packages = {find = {exclude = ["demo"]}}
 [project]
 name = "spotify_confidence_sdk"
 dynamic = ["version"]
-description = "Confidence provider for the OpenFeature SDK"
+description = "[Maintenance mode] Confidence provider for the OpenFeature SDK — migrate to confidence-resolver"
 readme = "README.md"
 authors = [{ name = "Confidence team" }]
 license = { file = "LICENSE" }
 classifiers = [
+    "Development Status :: 7 - Inactive",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3"
 ]

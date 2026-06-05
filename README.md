@@ -1,5 +1,10 @@
 # Python Confidence SDK
 
+> **⚠️ This SDK is in maintenance mode.**
+> We recommend migrating to the [Confidence Resolver Python OpenFeature Provider](https://github.com/spotify/confidence-resolver/tree/main/openfeature-provider/python), which offers better resilience and lower latency.
+>
+> This SDK will continue to receive critical bug fixes but no new features.
+
 This repo contains the [Confidence](https://confidence.spotify.com/) Python SDK and the Confidence OpenFeature provider. We recommend using the [OpenFeature Python SDK](https://github.com/open-feature/python-sdk) to access Confidence feature flags.
 
 

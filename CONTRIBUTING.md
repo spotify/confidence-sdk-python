@@ -1,5 +1,7 @@
 # Contributing
 
+> **⚠️ This SDK is in maintenance mode.** New features and enhancements should target the [Confidence Resolver Python OpenFeature Provider](https://github.com/spotify/confidence-resolver/tree/main/openfeature-provider/python) instead. Only critical bug fixes will be accepted here.
+
 ## Getting Involved
 
 We welcome contributions and are happy to discuss ideas, answer questions, and help you get started.

@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.3](https://github.com/spotify/confidence-sdk-python/compare/v3.0.2...v3.0.3) (2026-06-08)
+
+
+### 🧹 Chore
+
+* mark SDK as maintenance mode ([#117](https://github.com/spotify/confidence-sdk-python/issues/117)) ([e98910d](https://github.com/spotify/confidence-sdk-python/commit/e98910dce4c79f9cf9edde967d408c3840ff2a95))
+
 ## [3.0.2](https://github.com/spotify/confidence-sdk-python/compare/v3.0.1...v3.0.2) (2026-05-26)
 
 

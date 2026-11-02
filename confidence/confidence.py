@@ -171,11 +171,21 @@ class Confidence:
     def resolve_object_details(
         self, flag_key: str, default_value: Union[Object, List[Primitive]]
     ) -> FlagResolutionDetails[Union[Object, List[Primitive]]]:
+        """Resolve an object flag.
+
+        Note: list/array flag values are deprecated (flag values only; lists in
+        context and events are unaffected). They are still parsed and returned.
+        """
         return self._evaluate(flag_key, Object, default_value, self.context)
 
     async def resolve_object_details_async(
         self, flag_key: str, default_value: Union[Object, List[Primitive]]
     ) -> FlagResolutionDetails[Union[Object, List[Primitive]]]:
+        """Resolve an object flag.
+
+        Note: list/array flag values are deprecated (flag values only; lists in
+        context and events are unaffected). They are still parsed and returned.
+        """
         return await self._evaluate_async(flag_key, Object, default_value, self.context)
 
     #

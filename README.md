@@ -67,6 +67,14 @@ flag_value = client.get_string_value("flag-name.property-name", "my-default-valu
 print(f"Flag value: {flag_value}")
 ```
 
+### Deprecated: list/array flag values
+
+Using lists (arrays) as flag schema types or flag values is deprecated in this SDK. Prefer
+modeling such data as a struct/object flag property. Existing behavior is unchanged: list
+values are still parsed and returned by `resolve_object_details` (and the OpenFeature
+provider's object resolution), so current integrations keep working. This deprecation applies
+only to flag values; lists remain supported in evaluation context and event data.
+
 ### Configuration options
 
 The SDK can be configured with several options:

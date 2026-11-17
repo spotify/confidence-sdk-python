@@ -183,6 +183,11 @@ class ConfidenceOpenFeatureProvider(AbstractProvider):  # type: ignore[misc]
         default_value: Union[Object, List[Primitive]],
         evaluation_context: Optional[EvaluationContext] = None,
     ) -> FlagResolutionDetails[Union[Object, List[Primitive]]]:
+        """Resolve an object flag.
+
+        Note: list/array flag values are deprecated (flag values only; lists in
+        context and events are unaffected). They are still parsed and returned.
+        """
         details = self._confidence_with_context(
             evaluation_context
         ).resolve_object_details(flag_key, default_value)
